@@ -71,8 +71,17 @@ export default function Footer() {
             © {new Date().getFullYear()} DrumGate. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <span className="text-stone/40 text-xs">
-              Crafted with intention
+            <span className="text-stone/40 text-xs flex items-center gap-1">
+              Crafted by{' '}
+              <a
+                href="https://www.shantanuvispute.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-stone/70 hover:text-aka transition-colors inline-flex items-center gap-0.5 underline underline-offset-2"
+              >
+                Shantanu Gopal Vispute
+                <ArrowUpRight size={10} />
+              </a>
             </span>
             <div className="w-1 h-1 rounded-full bg-aka/40" />
             <span className="text-stone/40 text-xs font-jp">鼓門</span>

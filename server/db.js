@@ -2,6 +2,11 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 dotenv.config();
+if (!process.env.DB_HOST) {
+  try {
+    dotenv.config({ path: './server/.env' });
+  } catch (e) {}
+}
 
 const isSSL = process.env.DB_SSL === 'true' || process.env.DB_PORT === '12991';
 
@@ -15,10 +20,12 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
 });
 
 // Demo accounts password is: DemonSlayer2024!
-const DEMO_PW_HASH = '$2b$12$WZatQWMvQH8U2PlMkZ7a5eXmcnBQeoz0sDE.aR/Y4W7FkAmCxUrXC';
+const DEMO_PW_HASH = '$2b$12$hL3oNaAQjwVUFN7KDdndLO/txZTUecEM5xWsqDrSkfj8i9LkP/3i.';
 
 // Auto-initialize schema and seed Demon Slayer data on startup
 async function initDB() {

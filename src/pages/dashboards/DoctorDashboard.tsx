@@ -1092,7 +1092,7 @@ export default function DoctorDashboard() {
 
   useEffect(() => {
     // 1. Fetch live schedule from MySQL
-    fetch('http://localhost:3001/api/appointments')
+    fetch('/api/appointments')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1113,7 +1113,7 @@ export default function DoctorDashboard() {
       .catch((err) => console.log('Doctor schedule sync note:', err))
 
     // 2. Fetch live patients from MySQL
-    fetch('http://localhost:3001/api/patients')
+    fetch('/api/patients')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1135,7 +1135,7 @@ export default function DoctorDashboard() {
       .catch((err) => console.log('Doctor patients sync note:', err))
 
     // 3. Fetch live consultations from MySQL
-    fetch('http://localhost:3001/api/history')
+    fetch('/api/history')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1157,7 +1157,7 @@ export default function DoctorDashboard() {
 
   const handleUpdateStatus = (id: number, status: ScheduleItem['status']) => {
     setSchedule((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)))
-    fetch(`http://localhost:3001/api/appointments/${id}`, {
+    fetch(`/api/appointments/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),

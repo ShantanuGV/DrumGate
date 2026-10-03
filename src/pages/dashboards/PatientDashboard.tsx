@@ -348,7 +348,7 @@ function AppointmentsSection({
     setShowForm(false)
 
     // Persist to MySQL
-    fetch('http://localhost:3001/api/appointments', {
+    fetch('/api/appointments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -379,7 +379,7 @@ function AppointmentsSection({
 
   const handleCancel = (id: number) => {
     setAppointments((prev) => prev.filter((a) => a.id !== id))
-    fetch(`http://localhost:3001/api/appointments/${id}`, { method: 'DELETE' }).catch((err) =>
+    fetch(`/api/appointments/${id}`, { method: 'DELETE' }).catch((err) =>
       console.log('Delete note:', err)
     )
     setFeedback('Appointment cancelled.')
@@ -1116,7 +1116,7 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     // 1. Fetch live appointments from MySQL
-    fetch('http://localhost:3001/api/appointments')
+    fetch('/api/appointments')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1146,7 +1146,7 @@ export default function PatientDashboard() {
       .catch((err) => console.log('Appointment sync note:', err))
 
     // 2. Fetch live medical history
-    fetch('http://localhost:3001/api/history')
+    fetch('/api/history')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1164,7 +1164,7 @@ export default function PatientDashboard() {
       .catch((err) => console.log('History sync note:', err))
 
     // 3. Fetch live prescriptions
-    fetch('http://localhost:3001/api/prescriptions')
+    fetch('/api/prescriptions')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1184,7 +1184,7 @@ export default function PatientDashboard() {
       .catch((err) => console.log('Prescriptions sync note:', err))
 
     // 4. Fetch live vitals
-    fetch('http://localhost:3001/api/vitals')
+    fetch('/api/vitals')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -1213,7 +1213,7 @@ export default function PatientDashboard() {
     })
 
     // Persist to MySQL
-    fetch('http://localhost:3001/api/vitals', {
+    fetch('/api/vitals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

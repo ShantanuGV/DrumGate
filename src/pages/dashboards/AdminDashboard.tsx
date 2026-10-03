@@ -1224,7 +1224,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // 1. Fetch live doctors from MySQL
-    fetch('http://localhost:3001/api/doctors')
+    fetch('/api/doctors')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1245,7 +1245,7 @@ export default function AdminDashboard() {
       .catch((err) => console.log('Admin doctors sync note:', err))
 
     // 2. Fetch live patients from MySQL
-    fetch('http://localhost:3001/api/patients')
+    fetch('/api/patients')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1266,7 +1266,7 @@ export default function AdminDashboard() {
       .catch((err) => console.log('Admin patients sync note:', err))
 
     // 3. Fetch live appointments from MySQL
-    fetch('http://localhost:3001/api/appointments')
+    fetch('/api/appointments')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
@@ -1286,7 +1286,7 @@ export default function AdminDashboard() {
       .catch((err) => console.log('Admin appointments sync note:', err))
 
     // 4. Fetch live system logs from MySQL
-    fetch('http://localhost:3001/api/logs')
+    fetch('/api/logs')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data && res.data.length > 0) {
