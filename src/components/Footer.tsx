@@ -38,20 +38,28 @@ export default function Footer() {
                 {category}
               </h4>
               <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-stone text-sm hover:text-washi transition-colors duration-300 flex items-center gap-1 group"
-                    >
-                      {link}
-                      <ArrowUpRight
-                        size={10}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      />
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const isContact = link === 'Contact'
+                  const href = isContact
+                    ? 'https://mail.google.com/mail/?view=cm&fs=1&to=rbhai4515%2B112%40gmail.com&su=Inquiry%20regarding%20DrumGate'
+                    : '#'
+                  return (
+                    <li key={link}>
+                      <a
+                        href={href}
+                        target={isContact ? '_blank' : undefined}
+                        rel={isContact ? 'noopener noreferrer' : undefined}
+                        className="text-stone text-sm hover:text-washi transition-colors duration-300 flex items-center gap-1 group"
+                      >
+                        {link}
+                        <ArrowUpRight
+                          size={10}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        />
+                      </a>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           ))}

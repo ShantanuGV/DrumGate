@@ -1,5 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { ArrowUpRight, Mail } from 'lucide-react'
 import { useScrollAnimation } from '../hooks/useScrollAnimation'
 
 export default function FinalCTA() {
@@ -63,19 +62,35 @@ export default function FinalCTA() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          Step through the gate. Healthcare that feels different
-          starts here.
+          Have questions or wish to connect? Step through the gate or reach out directly to our team.
         </p>
 
-        {/* CTA */}
+        {/* CTA - Opens Gmail compose in new window with prefilled email */}
         <div
-          className={`flex flex-wrap items-center justify-center gap-4 transition-all duration-700 delay-300 ${
+          className={`flex flex-col items-center justify-center gap-3 transition-all duration-700 delay-300 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          <Link to="/signup" className="btn-primary !py-4 !px-10">
-            Enter DrumGate <ArrowUpRight size={16} />
-          </Link>
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=rbhai4515%2B112%40gmail.com&su=Inquiry%20regarding%20DrumGate"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary !py-4 !px-10 flex items-center gap-2.5 text-sm md:text-base group shadow-xl shadow-aka/20 hover:shadow-aka/40"
+          >
+            <Mail size={18} className="text-shiro" />
+            <span>Email Us</span>
+            <ArrowUpRight
+              size={16}
+              className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+            />
+          </a>
+
+          <a
+            href="mailto:rbhai4515+112@gmail.com"
+            className="text-stone hover:text-washi text-xs font-mono tracking-wider transition-colors pt-1"
+          >
+            rbhai4515+112@gmail.com
+          </a>
         </div>
 
         {/* Tagline */}
