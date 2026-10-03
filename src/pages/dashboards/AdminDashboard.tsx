@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import DashboardLayout from '../../components/DashboardLayout'
 import {
@@ -34,39 +34,57 @@ const navItems = [
   { icon: User, label: 'Admin Profile', id: 'profile' },
 ]
 
-/* ─── Initial Mock Data ─── */
-const initialDoctors = [
-  { id: 1, name: 'Dr. Haruki Tanaka', specialty: 'General Physician', email: 'haruki.tanaka@drumgate.internal', phone: '+81 90-1122-3344', patients: 32, room: 'Room 204', status: 'active' as const },
-  { id: 2, name: 'Dr. Yuki Yamamoto', specialty: 'Dermatologist', email: 'yuki.yamamoto@drumgate.internal', phone: '+81 90-2233-4455', patients: 18, room: 'Room 107', status: 'active' as const },
-  { id: 3, name: 'Dr. Ryo Sato', specialty: 'Cardiologist', email: 'ryo.sato@drumgate.internal', phone: '+81 90-3344-5566', patients: 25, room: 'Room 312', status: 'active' as const },
-  { id: 4, name: 'Dr. Mai Kimura', specialty: 'Pediatrician', email: 'mai.kimura@drumgate.internal', phone: '+81 90-4455-6677', patients: 41, room: 'Room 118', status: 'on-leave' as const },
-  { id: 5, name: 'Dr. Kenji Ito', specialty: 'Neurologist', email: 'kenji.ito@drumgate.internal', phone: '+81 90-5566-7788', patients: 14, room: 'Room 401', status: 'inactive' as const },
+/* ─── Demon Slayer Clinical Master Records (MySQL Synced) ─── */
+interface DoctorItem {
+  id: number
+  name: string
+  specialty: string
+  email: string
+  phone: string
+  patients: number
+  room: string
+  status: 'active' | 'on-leave' | 'inactive'
+}
+
+interface LogItem {
+  id: number
+  action: string
+  detail: string
+  time: string
+  severity: 'info' | 'warning' | 'error'
+}
+
+const initialDoctors: DoctorItem[] = [
+  { id: 1, name: 'Dr. Shinobu Kocho', specialty: 'Insect Hashira • Chief of Pharmacology', email: 'shinobu.kocho@drumgate.internal', phone: '+81 90-1888-0001', patients: 38, room: 'Butterfly Ward 1', status: 'active' },
+  { id: 2, name: 'Dr. Tamayo', specialty: 'Chief Medical Officer • Hematology & Regeneration', email: 'tamayo@drumgate.internal', phone: '+81 90-1888-0002', patients: 45, room: 'Asakusa Research Suite', status: 'active' },
+  { id: 3, name: 'Dr. Aoi Kanzaki', specialty: 'Lead Clinical Practitioner • Trauma & Rehab', email: 'aoi.kanzaki@drumgate.internal', phone: '+81 90-1888-0003', patients: 29, room: 'Recovery Wing A', status: 'active' },
+  { id: 4, name: 'Dr. Kyojuro Rengoku', specialty: 'Flame Hashira • Cardiology & Vital Resuscitation', email: 'kyojuro.rengoku@drumgate.internal', phone: '+81 90-1888-0004', patients: 34, room: 'Solar Pavilion 3', status: 'active' },
+  { id: 5, name: 'Dr. Giyu Tomioka', specialty: 'Water Hashira • Pulmonology & Recovery', email: 'giyu.tomioka@drumgate.internal', phone: '+81 90-1888-0005', patients: 21, room: 'Stream Chamber 2', status: 'on-leave' },
 ]
 
 const initialPatients = [
-  { id: 1, name: 'Aiko Suzuki', email: 'aiko.suzuki@patient.drumgate.com', doctor: 'Dr. Haruki Tanaka', registered: '2026-10-01', age: 34, phone: '+81 90-1234-5678', avatar: 'A' },
-  { id: 2, name: 'Kenji Mori', email: 'kenji.mori@patient.drumgate.com', doctor: 'Dr. Yuki Yamamoto', registered: '2026-09-28', age: 52, phone: '+81 90-8765-4321', avatar: 'K' },
-  { id: 3, name: 'Hana Watanabe', email: 'hana.watanabe@patient.drumgate.com', doctor: 'Dr. Ryo Sato', registered: '2026-09-25', age: 28, phone: '+81 90-4567-8901', avatar: 'H' },
-  { id: 4, name: 'Ren Fujita', email: 'ren.fujita@patient.drumgate.com', doctor: 'Dr. Haruki Tanaka', registered: '2026-09-22', age: 41, phone: '+81 90-5678-9012', avatar: 'R' },
-  { id: 5, name: 'Yumi Oda', email: 'yumi.oda@patient.drumgate.com', doctor: 'Dr. Mai Kimura', registered: '2026-09-18', age: 31, phone: '+81 90-6789-0123', avatar: 'Y' },
+  { id: 1, name: 'Tanjiro Kamado', email: 'tanjiro.kamado@patient.drumgate.com', doctor: 'Dr. Shinobu Kocho', registered: '2026-10-01', age: 16, phone: '+81 90-7771-0001', avatar: 'T' },
+  { id: 2, name: 'Zenitsu Agatsuma', email: 'zenitsu.agatsuma@patient.drumgate.com', doctor: 'Dr. Aoi Kanzaki', registered: '2026-09-28', age: 16, phone: '+81 90-7771-0002', avatar: 'Z' },
+  { id: 3, name: 'Inosuke Hashibira', email: 'inosuke.hashibira@patient.drumgate.com', doctor: 'Dr. Aoi Kanzaki', registered: '2026-09-25', age: 15, phone: '+81 90-7771-0003', avatar: 'I' },
+  { id: 4, name: 'Nezuko Kamado', email: 'nezuko.kamado@patient.drumgate.com', doctor: 'Dr. Tamayo', registered: '2026-09-22', age: 14, phone: '+81 90-7771-0004', avatar: 'N' },
+  { id: 5, name: 'Kanao Tsuyuri', email: 'kanao.tsuyuri@patient.drumgate.com', doctor: 'Dr. Shinobu Kocho', registered: '2026-09-18', age: 16, phone: '+81 90-7771-0005', avatar: 'K' },
 ]
 
 const initialAppointments = [
-  { id: 1, patient: 'Aiko Suzuki', doctor: 'Dr. Haruki Tanaka', date: '2026-10-08', time: '10:30 AM', room: 'Room 204', status: 'confirmed' as const },
-  { id: 2, patient: 'Kenji Mori', doctor: 'Dr. Yuki Yamamoto', date: '2026-10-08', time: '02:00 PM', room: 'Room 107', status: 'confirmed' as const },
-  { id: 3, patient: 'Yumi Oda', doctor: 'Dr. Ryo Sato', date: '2026-10-10', time: '09:00 AM', room: 'Room 312', status: 'pending' as const },
-  { id: 4, patient: 'Ren Fujita', doctor: 'Dr. Haruki Tanaka', date: '2026-10-12', time: '11:00 AM', room: 'Room 204', status: 'confirmed' as const },
-  { id: 5, patient: 'Hana Watanabe', doctor: 'Dr. Mai Kimura', date: '2026-10-15', time: '03:30 PM', room: 'Room 118', status: 'pending' as const },
+  { id: 1, patient: 'Tanjiro Kamado', doctor: 'Dr. Shinobu Kocho', date: '2026-10-08', time: '10:30 AM', room: 'Butterfly Ward 1', status: 'confirmed' as const },
+  { id: 2, patient: 'Zenitsu Agatsuma', doctor: 'Dr. Aoi Kanzaki', date: '2026-10-08', time: '02:00 PM', room: 'Recovery Wing A', status: 'confirmed' as const },
+  { id: 3, patient: 'Inosuke Hashibira', doctor: 'Dr. Aoi Kanzaki', date: '2026-10-10', time: '09:00 AM', room: 'Recovery Wing A', status: 'pending' as const },
+  { id: 4, patient: 'Nezuko Kamado', doctor: 'Dr. Tamayo', date: '2026-10-12', time: '11:00 AM', room: 'Asakusa Research Suite', status: 'confirmed' as const },
+  { id: 5, patient: 'Kanao Tsuyuri', doctor: 'Dr. Shinobu Kocho', date: '2026-10-15', time: '03:30 PM', room: 'Butterfly Ward 1', status: 'pending' as const },
 ]
 
-const initialLogs = [
-  { id: 1, action: 'Role authorization verified', detail: 'Dynamic MySQL role resolution executed for user session', time: 'Just now', severity: 'info' },
-  { id: 2, action: 'Clinical encounter logged', detail: 'Dr. Haruki Tanaka filed consultation for Aiko Suzuki', time: '14 mins ago', severity: 'info' },
-  { id: 3, action: 'Automated backup completed', detail: 'Database snapshot encrypted & replicated to secondary vault', time: '1 hour ago', severity: 'info' },
-  { id: 4, action: 'Doctor status update', detail: 'Dr. Mai Kimura placed on scheduled medical leave', time: '3 hours ago', severity: 'warning' },
+const initialLogs: LogItem[] = [
+  { id: 1, action: 'Demon Slayer Medical Portal synchronized', detail: 'Aiven Cloud MySQL connected with SSL encryption', time: 'Just now', severity: 'info' },
+  { id: 2, action: 'Butterfly Mansion Clinic opened', detail: 'Dr. Shinobu Kocho active in Butterfly Ward 1', time: '14 mins ago', severity: 'info' },
+  { id: 3, action: 'Asakusa Research Lab online', detail: 'Dr. Tamayo verified encrypted patient records vault', time: '35 mins ago', severity: 'info' },
+  { id: 4, action: 'Scheduled medical leave noted', detail: 'Dr. Giyu Tomioka on scheduled rest rotation', time: '1 hour ago', severity: 'warning' },
 ]
 
-type DoctorItem = typeof initialDoctors[number]
 type PatientItem = typeof initialPatients[number]
 type AppointmentItem = typeof initialAppointments[number]
 
@@ -1203,6 +1221,88 @@ export default function AdminDashboard() {
   const [patients, setPatients] = useState(initialPatients)
   const [appointments, setAppointments] = useState(initialAppointments)
   const [logs, setLogs] = useState(initialLogs)
+
+  useEffect(() => {
+    // 1. Fetch live doctors from MySQL
+    fetch('http://localhost:3001/api/doctors')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setDoctors(
+            res.data.map((d: any) => ({
+              id: d.id,
+              name: d.name,
+              specialty: d.specialty,
+              email: d.email,
+              phone: d.phone,
+              patients: d.patients_count || 30,
+              room: d.room || 'Butterfly Ward 1',
+              status: d.status || 'active',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Admin doctors sync note:', err))
+
+    // 2. Fetch live patients from MySQL
+    fetch('http://localhost:3001/api/patients')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setPatients(
+            res.data.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              email: p.email,
+              doctor: p.assigned_doctor,
+              registered: p.registered ? p.registered.split('T')[0] : '2026-10-01',
+              age: p.age,
+              phone: p.phone,
+              avatar: p.name.charAt(0),
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Admin patients sync note:', err))
+
+    // 3. Fetch live appointments from MySQL
+    fetch('http://localhost:3001/api/appointments')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setAppointments(
+            res.data.map((a: any) => ({
+              id: a.id,
+              patient: a.patient_name,
+              doctor: a.doctor_name,
+              date: a.date,
+              time: a.time,
+              room: a.room,
+              status: (a.status === 'completed' || a.status === 'in-progress' ? 'confirmed' : a.status) as any,
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Admin appointments sync note:', err))
+
+    // 4. Fetch live system logs from MySQL
+    fetch('http://localhost:3001/api/logs')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setLogs(
+            res.data.map((l: any) => ({
+              id: l.id,
+              action: l.action,
+              detail: l.detail,
+              time: l.time,
+              severity: l.severity || 'info',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Admin logs sync note:', err))
+  }, [user])
 
   if (!user) return null
 

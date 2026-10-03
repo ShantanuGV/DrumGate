@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import DashboardLayout from '../../components/DashboardLayout'
 import {
@@ -34,40 +34,41 @@ const navItems = [
   { icon: User, label: 'Profile & Health', id: 'profile' },
 ]
 
-/* ─── Initial Mock Data ─── */
+/* ─── Demon Slayer Clinical Records (MySQL Synced) ─── */
 const initialAppointments = [
-  { id: 1, doctor: 'Dr. Haruki Tanaka', specialty: 'General Physician', date: '2026-10-08', time: '10:30 AM', location: 'Room 204', mode: 'In-Clinic', status: 'confirmed' as const, note: 'Quarterly general health review' },
-  { id: 2, doctor: 'Dr. Yuki Yamamoto', specialty: 'Dermatologist', date: '2026-10-22', time: '2:00 PM', location: 'Room 107', mode: 'In-Clinic', status: 'confirmed' as const, note: 'Skin assessment follow-up' },
-  { id: 3, doctor: 'Dr. Ryo Sato', specialty: 'Cardiologist', date: '2026-11-05', time: '9:00 AM', location: 'Virtual Telehealth', mode: 'Video Call', status: 'pending' as const, note: 'Cardiovascular check' },
+  { id: 1, doctor: 'Dr. Shinobu Kocho', specialty: 'Insect Hashira • Chief Pharmacologist', date: '2026-10-08', time: '10:30 AM', location: 'Butterfly Ward 1', mode: 'In-Clinic', status: 'confirmed' as const, note: 'Total Concentration respiratory & thoracic follow-up' },
+  { id: 2, doctor: 'Dr. Aoi Kanzaki', specialty: 'Rehabilitation & Trauma Care', date: '2026-10-22', time: '2:00 PM', location: 'Recovery Wing A', mode: 'In-Clinic', status: 'confirmed' as const, note: 'Muscle flexibility and medicinal tea infusion therapy' },
+  { id: 3, doctor: 'Dr. Tamayo', specialty: 'Hematology & Regeneration', date: '2026-11-05', time: '9:00 AM', location: 'Asakusa Research Suite', mode: 'Video Call', status: 'pending' as const, note: 'Cellular equilibrium and sleep vital screening' },
 ]
 
 const initialHistory = [
-  { id: 1, date: '2026-09-28', type: 'Consultation', doctor: 'Dr. Haruki Tanaka', note: 'Routine check-up. All vitals normal. Blood pressure 120/80 mmHg. Advised continued light morning yoga.' },
-  { id: 2, date: '2026-09-12', type: 'Lab Results', doctor: 'Dr. Yuki Yamamoto', note: 'Comprehensive metabolic panel & lipid panel complete. All values within normal optimal range.' },
-  { id: 3, date: '2026-08-30', type: 'Follow-up', doctor: 'Dr. Haruki Tanaka', note: 'Post-seasonal allergy review. Recovery complete. Prescribed maintenance antihistamine as needed.' },
-  { id: 4, date: '2026-08-15', type: 'Prescription', doctor: 'Dr. Ryo Sato', note: 'Renewed cardiovascular maintenance prescription for 90-day duration.' },
+  { id: 1, date: '2026-09-28', type: 'Consultation', doctor: 'Dr. Shinobu Kocho', note: 'Thoracic recovery progressing exceptionally well. Lung capacity expanded via Total Concentration breathing. Cleared for light gourd exercise.' },
+  { id: 2, date: '2026-09-12', type: 'Lab Results', doctor: 'Dr. Tamayo', note: 'Comprehensive cellular vitality screen. All inflammatory markers returned to baseline. Poison traces completely metabolized.' },
+  { id: 3, date: '2026-08-30', type: 'Therapy Session', doctor: 'Dr. Aoi Kanzaki', note: 'Acupuncture and soothing herbal compresses applied to limbs. Reflexes sharp and tremors subsided.' },
+  { id: 4, date: '2026-08-15', type: 'Prescription', doctor: 'Dr. Kyojuro Rengoku', note: 'Cardiovascular check: Pulse steady and powerful like a burning flame. Prescribed maintenance herbal tonic.' },
 ]
 
 const initialPrescriptions = [
-  { id: 1, name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily in the morning', doctor: 'Dr. Haruki Tanaka', refills: 3, status: 'Active' },
-  { id: 2, name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily at bedtime', doctor: 'Dr. Ryo Sato', refills: 2, status: 'Active' },
-  { id: 3, name: 'Cetirizine HCl', dosage: '10mg', frequency: 'As needed for seasonal symptoms', doctor: 'Dr. Yuki Yamamoto', refills: 1, status: 'Active' },
+  { id: 1, name: 'Wisteria Restorative Tonic', dosage: '20ml', frequency: 'Twice daily after morning meal', doctor: 'Dr. Shinobu Kocho', refills: 3, status: 'Active' },
+  { id: 2, name: 'Calming Herbal Compound', dosage: '10mg', frequency: 'Once daily before evening rest', doctor: 'Dr. Tamayo', refills: 2, status: 'Active' },
+  { id: 3, name: 'Bitter Relaxation Tea', dosage: '1 cup', frequency: 'Three times daily (Do not skip)', doctor: 'Dr. Aoi Kanzaki', refills: 4, status: 'Active' },
 ]
 
 const initialVitals = {
-  bloodPressure: '120/80',
-  heartRate: '72',
-  bloodGlucose: '94',
-  weight: '64.5',
+  bloodPressure: '118/76',
+  heartRate: '64',
+  bloodGlucose: '92',
+  weight: '61.0',
   oxygenLevel: '99',
   lastUpdated: 'Today, 8:45 AM',
 }
 
 const availableDoctors = [
-  { name: 'Dr. Haruki Tanaka', specialty: 'General Physician' },
-  { name: 'Dr. Yuki Yamamoto', specialty: 'Dermatologist' },
-  { name: 'Dr. Ryo Sato', specialty: 'Cardiologist' },
-  { name: 'Dr. Mai Kimura', specialty: 'Pediatrician & Family Care' },
+  { name: 'Dr. Shinobu Kocho', specialty: 'Insect Hashira • Chief of Pharmacology' },
+  { name: 'Dr. Tamayo', specialty: 'Chief Medical Officer • Hematology & Regeneration' },
+  { name: 'Dr. Aoi Kanzaki', specialty: 'Lead Clinical Practitioner • Trauma & Rehab' },
+  { name: 'Dr. Kyojuro Rengoku', specialty: 'Flame Hashira • Cardiology & Vital Resuscitation' },
+  { name: 'Dr. Giyu Tomioka', specialty: 'Water Hashira • Pulmonology & Recovery' },
 ]
 
 function formatDate(dateStr: string) {
@@ -345,12 +346,30 @@ function AppointmentsSection({
     }
     setAppointments((prev) => [newApt, ...prev])
     setShowForm(false)
+
+    // Persist to MySQL
+    fetch('http://localhost:3001/api/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patient_name: 'Tanjiro Kamado',
+        doctor_name: form.doctor,
+        date: form.date,
+        time: form.time,
+        room: form.location,
+        mode: form.mode,
+        type: 'Clinical Consultation',
+        status: 'confirmed',
+        notes: form.note || 'Scheduled consultation',
+      }),
+    }).catch((err) => console.log('Booking persistence note:', err))
+
     setForm({
       doctor: availableDoctors[0].name,
       specialty: availableDoctors[0].specialty,
       date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
       time: '10:00 AM',
-      location: 'Room 204 (In-Clinic)',
+      location: 'Butterfly Ward 1',
       mode: 'In-Clinic',
       note: '',
     })
@@ -360,6 +379,9 @@ function AppointmentsSection({
 
   const handleCancel = (id: number) => {
     setAppointments((prev) => prev.filter((a) => a.id !== id))
+    fetch(`http://localhost:3001/api/appointments/${id}`, { method: 'DELETE' }).catch((err) =>
+      console.log('Delete note:', err)
+    )
     setFeedback('Appointment cancelled.')
     setTimeout(() => setFeedback(''), 2500)
   }
@@ -1092,6 +1114,93 @@ export default function PatientDashboard() {
 
   if (!user) return null
 
+  useEffect(() => {
+    // 1. Fetch live appointments from MySQL
+    fetch('http://localhost:3001/api/appointments')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setAppointments(
+            res.data.map((d: any) => ({
+              id: d.id,
+              doctor: d.doctor_name,
+              specialty: d.doctor_name.includes('Shinobu')
+                ? 'Insect Hashira • Chief Pharmacologist'
+                : d.doctor_name.includes('Tamayo')
+                ? 'Hematology & Regeneration'
+                : d.doctor_name.includes('Aoi')
+                ? 'Rehabilitation & Trauma Care'
+                : d.doctor_name.includes('Rengoku')
+                ? 'Flame Hashira • Cardiology'
+                : 'Clinical Specialist',
+              date: d.date,
+              time: d.time,
+              location: d.room || 'Butterfly Ward 1',
+              mode: d.mode || 'In-Clinic',
+              status: d.status || 'confirmed',
+              note: d.notes || 'Clinical consultation',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Appointment sync note:', err))
+
+    // 2. Fetch live medical history
+    fetch('http://localhost:3001/api/history')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setHistory(
+            res.data.map((h: any) => ({
+              id: h.id,
+              date: h.date,
+              type: h.type,
+              doctor: h.doctor_name,
+              note: h.note,
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('History sync note:', err))
+
+    // 3. Fetch live prescriptions
+    fetch('http://localhost:3001/api/prescriptions')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setPrescriptions(
+            res.data.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              dosage: p.dosage,
+              frequency: p.frequency,
+              doctor: p.doctor_name,
+              refills: p.refills || 1,
+              status: p.status || 'Active',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Prescriptions sync note:', err))
+
+    // 4. Fetch live vitals
+    fetch('http://localhost:3001/api/vitals')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data) {
+          setVitals({
+            bloodPressure: res.data.blood_pressure || '118/76',
+            heartRate: res.data.heart_rate || '64',
+            bloodGlucose: res.data.blood_glucose || '92',
+            weight: res.data.weight || '61.0',
+            oxygenLevel: res.data.oxygen_level || '99',
+            lastUpdated: res.data.last_updated || 'Today, 8:45 AM',
+          })
+        }
+      })
+      .catch((err) => console.log('Vitals sync note:', err))
+  }, [user])
+
   const handleSaveVitals = (e: React.FormEvent) => {
     e.preventDefault()
     setVitals({
@@ -1102,6 +1211,21 @@ export default function PatientDashboard() {
       weight: vitalsForm.weight,
       lastUpdated: 'Just now',
     })
+
+    // Persist to MySQL
+    fetch('http://localhost:3001/api/vitals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patient_name: user.full_name,
+        blood_pressure: vitalsForm.bp,
+        heart_rate: vitalsForm.hr,
+        blood_glucose: vitalsForm.glucose,
+        weight: vitalsForm.weight,
+        oxygen_level: '99',
+      }),
+    }).catch((err) => console.log('Vitals persistence note:', err))
+
     // Also log to history
     setHistory((prev) => [
       {

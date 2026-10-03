@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import DashboardLayout from '../../components/DashboardLayout'
 import {
@@ -35,48 +35,48 @@ const navItems = [
   { icon: User, label: 'Physician Profile', id: 'profile' },
 ]
 
-/* ─── Mock Data ─── */
+/* ─── Demon Slayer Clinical Schedule (MySQL Synced) ─── */
 const initialSchedule = [
-  { id: 1, time: '09:00 AM', patient: 'Aiko Suzuki', type: 'Routine Follow-up', status: 'completed' as const, room: 'Room 204', mode: 'In-Clinic', notes: 'Blood pressure stabilised. Continue present medication.' },
-  { id: 2, time: '10:30 AM', patient: 'Kenji Mori', type: 'Clinical Consultation', status: 'in-progress' as const, room: 'Room 204', mode: 'In-Clinic', notes: 'Evaluating cardiovascular response to light cardio regimen.' },
-  { id: 3, time: '01:30 PM', patient: 'Yumi Oda', type: 'General Check-up', status: 'upcoming' as const, room: 'Room 204', mode: 'In-Clinic', notes: 'Annual biometric screening.' },
-  { id: 4, time: '03:15 PM', patient: 'Ren Fujita', type: 'Telehealth Review', status: 'upcoming' as const, room: 'Video Call', mode: 'Video Call', notes: 'Discussing latest lipid blood work via encrypted stream.' },
+  { id: 1, time: '09:00 AM', patient: 'Tanjiro Kamado', type: 'Total Concentration Review', status: 'completed' as const, room: 'Butterfly Ward 1', mode: 'In-Clinic', notes: 'Thoracic expansion verified. Respiratory cadence peaceful at 14 breaths/min.' },
+  { id: 2, time: '10:30 AM', patient: 'Zenitsu Agatsuma', type: 'Clinical Consultation', status: 'in-progress' as const, room: 'Recovery Wing A', mode: 'In-Clinic', notes: 'Evaluating nervous system recovery and limb reflexes under soothing herbal infusion.' },
+  { id: 3, time: '01:30 PM', patient: 'Inosuke Hashibira', type: 'Rib Bone Healing Ultrasound', status: 'upcoming' as const, room: 'Recovery Wing A', mode: 'In-Clinic', notes: 'Biometric thoracic imaging to confirm solid bone union before combat drills.' },
+  { id: 4, time: '03:15 PM', patient: 'Nezuko Kamado', type: 'Cellular Biomarker Review', status: 'upcoming' as const, room: 'Asakusa Research Suite', mode: 'Video Call', notes: 'Reviewing daytime sleep metabolic stability via secure stream.' },
 ]
 
 const initialPatients = [
-  { id: 1, name: 'Aiko Suzuki', lastVisit: 'Today', condition: 'Hypertension Stage 1', age: 34, gender: 'Female', phone: '+81 90-1234-5678', bloodType: 'A+', allergies: 'Pollen' },
-  { id: 2, name: 'Kenji Mori', lastVisit: 'Today', condition: 'Cardiovascular Care', age: 52, gender: 'Male', phone: '+81 90-8765-4321', bloodType: 'O+', allergies: 'None' },
-  { id: 3, name: 'Hana Watanabe', lastVisit: 'Sep 30', condition: 'Post-operative Recovery', age: 28, gender: 'Female', phone: '+81 90-4567-8901', bloodType: 'B+', allergies: 'Penicillin' },
-  { id: 4, name: 'Takeshi Ito', lastVisit: 'Sep 28', condition: 'Metabolic Evaluation', age: 45, gender: 'Male', phone: '+81 90-2345-6789', bloodType: 'AB-', allergies: 'Sulfa drugs' },
-  { id: 5, name: 'Yumi Oda', lastVisit: 'Sep 20', condition: 'Preventive Wellness', age: 31, gender: 'Female', phone: '+81 90-3456-7890', bloodType: 'A-', allergies: 'None' },
+  { id: 1, name: 'Tanjiro Kamado', lastVisit: 'Today', condition: 'Sun Breathing Strain & Thoracic Recovery', age: 16, gender: 'Male', phone: '+81 90-7771-0001', bloodType: 'A+', allergies: 'None' },
+  { id: 2, name: 'Zenitsu Agatsuma', lastVisit: 'Today', condition: 'Lightning Strain & Nervous System Stress', age: 16, gender: 'Male', phone: '+81 90-7771-0002', bloodType: 'O+', allergies: 'Spider Venom (Desensitized)' },
+  { id: 3, name: 'Inosuke Hashibira', lastVisit: 'Yesterday', condition: 'Acute Rib Fracture & Joint Realignment', age: 15, gender: 'Male', phone: '+81 90-7771-0003', bloodType: 'B+', allergies: 'None (Dislikes Bitter Tonics)' },
+  { id: 4, name: 'Nezuko Kamado', lastVisit: 'Sep 28', condition: 'Regenerative Homeostasis & Sleep Therapy', age: 14, gender: 'Female', phone: '+81 90-7771-0004', bloodType: 'AB+', allergies: 'Sunlight Sensitivity' },
+  { id: 5, name: 'Kanao Tsuyuri', lastVisit: 'Sep 25', condition: 'Vermilion Eye Strain & Physical Stamina', age: 16, gender: 'Female', phone: '+81 90-7771-0005', bloodType: 'A-', allergies: 'None' },
 ]
 
 const initialConsultations = [
   {
     id: 1,
-    patient: 'Aiko Suzuki',
-    date: '2026-10-03',
-    diagnosis: 'Hypertension Under Control',
-    summary: 'Systolic blood pressure measured at 122/81 mmHg. Patient reports good compliance with Lisinopril 10mg. No dizzy spells or side effects. Advised continued morning walking routine.',
-    prescription: 'Lisinopril 10mg — once daily',
-    followUp: '4 weeks',
+    patient: 'Tanjiro Kamado',
+    date: '2026-09-28',
+    diagnosis: 'Thoracic Recovery Progressing',
+    summary: 'Thoracic ribs fully aligned. Lung capacity expanded to 5.2L via Total Concentration breathing. Cleared for light gourd training exercises.',
+    prescription: 'Wisteria Restorative Tonic — 20ml twice daily',
+    followUp: '2 weeks',
   },
   {
     id: 2,
-    patient: 'Hana Watanabe',
+    patient: 'Zenitsu Agatsuma',
     date: '2026-09-30',
-    diagnosis: 'Post-operative Wound Check',
-    summary: 'Surgical site clean and dry with normal healing tissue. Suture removal completed without incident. Cleared for normal daily mobility.',
-    prescription: 'Topical soothing ointment as needed',
-    followUp: 'As needed',
+    diagnosis: 'Neural Pathway Stabilization',
+    summary: 'Acupuncture and soothing herbal compresses applied to limbs. Reflexes sharp and tremors subsided completely.',
+    prescription: 'Bitter Relaxation Tea (Strictly 3x daily)',
+    followUp: '1 week',
   },
   {
     id: 3,
-    patient: 'Takeshi Ito',
-    date: '2026-09-28',
-    diagnosis: 'Elevated Fasting Glucose',
-    summary: 'Fasting glucose was 114 mg/dL. Ordered follow-up HbA1c panel. Discussed carbohydrate reduction and structured aerobic exercise.',
-    prescription: 'Metformin 500mg pending test results',
+    patient: 'Inosuke Hashibira',
+    date: '2026-09-25',
+    diagnosis: 'Rib Fracture Healing Stage 4',
+    summary: 'Bone union solid on bilateral 5th and 6th ribs. Callus formation healthy. Prescribed mandatory 5 days of rest.',
+    prescription: 'Wild Root Calcium Paste (Topical)',
     followUp: '2 weeks',
   },
 ]
@@ -1090,8 +1090,78 @@ export default function DoctorDashboard() {
   const [consultations, setConsultations] = useState(initialConsultations)
   const [selectedPatientFile, setSelectedPatientFile] = useState<PatientItem | null>(null)
 
+  useEffect(() => {
+    // 1. Fetch live schedule from MySQL
+    fetch('http://localhost:3001/api/appointments')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setSchedule(
+            res.data.map((d: any) => ({
+              id: d.id,
+              time: d.time || '10:00 AM',
+              patient: d.patient_name,
+              type: d.type || 'Clinical Consultation',
+              status: (d.status === 'confirmed' ? 'upcoming' : d.status) as any,
+              room: d.room || 'Butterfly Ward 1',
+              mode: d.mode || 'In-Clinic',
+              notes: d.notes || 'Routine follow-up consultation',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Doctor schedule sync note:', err))
+
+    // 2. Fetch live patients from MySQL
+    fetch('http://localhost:3001/api/patients')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setPatients(
+            res.data.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              lastVisit: p.last_visit || 'Today',
+              condition: p.condition_name || 'Recovery & Wellness',
+              age: p.age || 16,
+              gender: p.gender || 'Male',
+              phone: p.phone || '+81 90-7771-0001',
+              bloodType: p.blood_type || 'A+',
+              allergies: p.allergies || 'None',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Doctor patients sync note:', err))
+
+    // 3. Fetch live consultations from MySQL
+    fetch('http://localhost:3001/api/history')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setConsultations(
+            res.data.map((c: any) => ({
+              id: c.id,
+              patient: c.patient_name,
+              date: c.date,
+              diagnosis: c.diagnosis || c.type,
+              summary: c.note,
+              prescription: c.prescription || 'N/A',
+              followUp: c.follow_up || '2 weeks',
+            }))
+          )
+        }
+      })
+      .catch((err) => console.log('Doctor consultations sync note:', err))
+  }, [user])
+
   const handleUpdateStatus = (id: number, status: ScheduleItem['status']) => {
     setSchedule((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)))
+    fetch(`http://localhost:3001/api/appointments/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    }).catch((err) => console.log('Status update note:', err))
   }
 
   if (!user) return null

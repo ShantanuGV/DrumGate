@@ -177,7 +177,7 @@ export default function SignIn() {
             </div>
 
             {/* Sign up link */}
-            <p className="text-center text-sm text-ash">
+            <p className="text-center text-sm text-ash mb-4">
               New to DrumGate?{' '}
               <Link
                 to="/signup"
@@ -186,6 +186,45 @@ export default function SignIn() {
                 Create an account
               </Link>
             </p>
+
+            {/* Demon Slayer Demo Accounts Quick Fill */}
+            <div className="pt-4 border-t border-mist/30">
+              <p className="text-[0.65rem] tracking-wider uppercase font-mono text-stone mb-2 text-center">
+                Demon Slayer Quick Test
+              </p>
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('tanjiro.kamado@patient.drumgate.com')
+                    setPassword('DemonSlayer2024!')
+                  }}
+                  className="px-2.5 py-1 text-[11px] rounded bg-stone/10 hover:bg-aka/10 hover:text-aka text-sumi transition-colors border border-mist/40"
+                >
+                  Tanjiro (Patient)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('shinobu.kocho@drumgate.internal')
+                    setPassword('DemonSlayer2024!')
+                  }}
+                  className="px-2.5 py-1 text-[11px] rounded bg-stone/10 hover:bg-aka/10 hover:text-aka text-sumi transition-colors border border-mist/40"
+                >
+                  Dr. Shinobu (Doctor)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('kagaya.ubuyashiki@drumgate.internal')
+                    setPassword('DemonSlayer2024!')
+                  }}
+                  className="px-2.5 py-1 text-[11px] rounded bg-stone/10 hover:bg-aka/10 hover:text-aka text-sumi transition-colors border border-mist/40"
+                >
+                  Kagaya (Admin)
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

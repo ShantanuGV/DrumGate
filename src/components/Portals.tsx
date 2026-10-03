@@ -32,8 +32,8 @@ const careActions: CareAction[] = [
     imageAlt: 'Serene stone pathway',
     actionLabel: 'Book Visit',
     preview: {
-      title: 'Dr. Haruki Tanaka',
-      meta: 'Cardiology • Today, 2:30 PM',
+      title: 'Dr. Shinobu Kocho',
+      meta: 'Insect Hashira • Butterfly Ward 1',
       badge: 'Available',
     },
   },
@@ -47,8 +47,8 @@ const careActions: CareAction[] = [
     imageAlt: 'Physician on mountain path',
     actionLabel: 'Explore Doctors',
     preview: {
-      title: 'Dr. Yuki Yamamoto',
-      meta: 'Dermatology • 12 Yrs Exp',
+      title: 'Dr. Tamayo',
+      meta: 'Chief Medical Officer • Hematology',
       badge: 'Verified',
     },
   },
@@ -63,8 +63,8 @@ const careActions: CareAction[] = [
     imageFilter: 'brightness-90 contrast-105 saturate-90 hue-rotate-[340deg]',
     actionLabel: 'View Records',
     preview: {
-      title: 'Health Timeline',
-      meta: 'Vitals Normal • 3 Prescriptions',
+      title: 'Tanjiro Kamado • Health Vault',
+      meta: 'Total Concentration Vitals • Synced',
       badge: 'Synced',
     },
   },
@@ -78,8 +78,8 @@ const careActions: CareAction[] = [
     imageAlt: 'Watchtower perspective',
     actionLabel: 'Practice Hub',
     preview: {
-      title: 'Practice Console',
-      meta: '18 Consultations Today',
+      title: 'Kagaya Ubuyashiki • Command Hub',
+      meta: 'Butterfly Mansion & Clinic Console',
       badge: 'Active',
     },
   },
