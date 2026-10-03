@@ -22,6 +22,13 @@ interface DashboardLayoutProps {
   onNavigate: (id: string) => void
   accentColor?: string
   roleLabel: string
+  coverImage?: string
+  coverQuote?: {
+    kanji: string
+    title: string
+    subtitle: string
+    badge?: string
+  }
 }
 
 export default function DashboardLayout({
@@ -31,6 +38,8 @@ export default function DashboardLayout({
   onNavigate,
   accentColor = 'aka',
   roleLabel,
+  coverImage,
+  coverQuote,
 }: DashboardLayoutProps) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -170,6 +179,78 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* ── Full-Height Screen Portrait Showcase Column (Desktop) ── */}
+      {coverImage && (
+        <aside
+          className="hidden lg:flex w-[280px] xl:w-[350px] 2xl:w-[410px] h-screen sticky top-0 flex-col flex-shrink-0 border-l border-charcoal/30 overflow-hidden relative select-none"
+          aria-label="Portal Visual Art"
+        >
+          {/* Portrait Image Covering Full Screen Height */}
+          <img
+            src={coverImage}
+            alt={`${roleLabel} Visual`}
+            className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.72] contrast-[1.08] hover:scale-105 transition-transform duration-1000 ease-out"
+          />
+
+          {/* Cinematic Vignette & Japanese Zen Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-kuro via-kuro/40 to-kuro/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-kuro/80 via-transparent to-kuro/40 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-kuro/30 to-kuro/80 pointer-events-none" />
+
+          {/* Top Overlay: Ambient Badge & Role Seal */}
+          <div className="relative z-10 p-6 flex items-start justify-between">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-kuro/75 backdrop-blur-md border border-charcoal/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-aka animate-pulse" />
+              <span className="text-[0.65rem] tracking-[0.2em] uppercase text-mist font-mono">
+                {coverQuote?.badge || roleLabel}
+              </span>
+            </div>
+            {coverQuote?.kanji && (
+              <div
+                className="w-9 h-9 rounded-lg bg-kuro/75 backdrop-blur-md border border-aka/40 flex items-center justify-center shadow-lg"
+                style={{ transform: 'rotate(2deg)' }}
+              >
+                <span className="text-aka font-serif text-sm font-bold">
+                  {coverQuote.kanji}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Center: Atmospheric Kanji Watermark */}
+          {coverQuote?.kanji && (
+            <div className="relative z-10 flex-1 flex flex-col justify-center items-center pointer-events-none opacity-20">
+              <span className="font-serif text-8xl text-washi tracking-widest">
+                {coverQuote.kanji}
+              </span>
+            </div>
+          )}
+
+          {/* Bottom Card: Philosophical Zen Quote & System Status */}
+          <div className="relative z-10 p-6">
+            <div className="p-5 rounded-2xl bg-sumi/75 backdrop-blur-md border border-charcoal/50 shadow-2xl">
+              {coverQuote?.title && (
+                <p className="text-aka text-[0.65rem] tracking-[0.2em] uppercase font-semibold mb-1">
+                  {coverQuote.title}
+                </p>
+              )}
+              {coverQuote?.subtitle && (
+                <p className="text-xs text-washi/90 italic font-serif leading-relaxed mb-4">
+                  "{coverQuote.subtitle}"
+                </p>
+              )}
+              <div className="pt-3 border-t border-charcoal/40 flex items-center justify-between text-[0.65rem] text-stone font-mono">
+                <span className="tracking-wider uppercase">DrumGate 鼓門</span>
+                <span className="text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+                  Encrypted TLS 1.3
+                </span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      )}
     </div>
   )
 }

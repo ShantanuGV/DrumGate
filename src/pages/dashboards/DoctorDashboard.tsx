@@ -16,176 +16,275 @@ import {
   Check,
   Save,
   Edit3,
+  Search,
+  Filter,
+  AlertCircle,
+  Video,
+  MapPin,
+  Pill,
+  Activity,
+  Phone,
+  CalendarCheck,
 } from 'lucide-react'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Overview', id: 'overview' },
-  { icon: Calendar, label: 'Appointments', id: 'appointments' },
+  { icon: Calendar, label: 'Schedule & Visits', id: 'appointments' },
   { icon: Users, label: 'My Patients', id: 'patients' },
-  { icon: FileText, label: 'Consultations', id: 'consultations' },
-  { icon: User, label: 'Profile', id: 'profile' },
+  { icon: FileText, label: 'Clinical Notes', id: 'consultations' },
+  { icon: User, label: 'Physician Profile', id: 'profile' },
 ]
 
 /* ─── Mock Data ─── */
 const initialSchedule = [
-  { id: 1, time: '9:00 AM', patient: 'Aiko Suzuki', type: 'Follow-up', status: 'completed' as const, notes: '' },
-  { id: 2, time: '10:30 AM', patient: 'Kenji Mori', type: 'Consultation', status: 'in-progress' as const, notes: '' },
-  { id: 3, time: '1:00 PM', patient: 'Yumi Oda', type: 'Check-up', status: 'upcoming' as const, notes: '' },
-  { id: 4, time: '3:30 PM', patient: 'Ren Fujita', type: 'New Patient', status: 'upcoming' as const, notes: '' },
+  { id: 1, time: '09:00 AM', patient: 'Aiko Suzuki', type: 'Routine Follow-up', status: 'completed' as const, room: 'Room 204', mode: 'In-Clinic', notes: 'Blood pressure stabilised. Continue present medication.' },
+  { id: 2, time: '10:30 AM', patient: 'Kenji Mori', type: 'Clinical Consultation', status: 'in-progress' as const, room: 'Room 204', mode: 'In-Clinic', notes: 'Evaluating cardiovascular response to light cardio regimen.' },
+  { id: 3, time: '01:30 PM', patient: 'Yumi Oda', type: 'General Check-up', status: 'upcoming' as const, room: 'Room 204', mode: 'In-Clinic', notes: 'Annual biometric screening.' },
+  { id: 4, time: '03:15 PM', patient: 'Ren Fujita', type: 'Telehealth Review', status: 'upcoming' as const, room: 'Video Call', mode: 'Video Call', notes: 'Discussing latest lipid blood work via encrypted stream.' },
 ]
 
 const initialPatients = [
-  { id: 1, name: 'Aiko Suzuki', lastVisit: 'Today', condition: 'Routine follow-up', age: 34 },
-  { id: 2, name: 'Kenji Mori', lastVisit: 'Today', condition: 'Chronic management', age: 52 },
-  { id: 3, name: 'Hana Watanabe', lastVisit: 'Sep 30', condition: 'Post-operative care', age: 28 },
-  { id: 4, name: 'Takeshi Ito', lastVisit: 'Sep 28', condition: 'Initial assessment', age: 45 },
-  { id: 5, name: 'Yumi Oda', lastVisit: 'Sep 20', condition: 'Preventive care', age: 31 },
+  { id: 1, name: 'Aiko Suzuki', lastVisit: 'Today', condition: 'Hypertension Stage 1', age: 34, gender: 'Female', phone: '+81 90-1234-5678', bloodType: 'A+', allergies: 'Pollen' },
+  { id: 2, name: 'Kenji Mori', lastVisit: 'Today', condition: 'Cardiovascular Care', age: 52, gender: 'Male', phone: '+81 90-8765-4321', bloodType: 'O+', allergies: 'None' },
+  { id: 3, name: 'Hana Watanabe', lastVisit: 'Sep 30', condition: 'Post-operative Recovery', age: 28, gender: 'Female', phone: '+81 90-4567-8901', bloodType: 'B+', allergies: 'Penicillin' },
+  { id: 4, name: 'Takeshi Ito', lastVisit: 'Sep 28', condition: 'Metabolic Evaluation', age: 45, gender: 'Male', phone: '+81 90-2345-6789', bloodType: 'AB-', allergies: 'Sulfa drugs' },
+  { id: 5, name: 'Yumi Oda', lastVisit: 'Sep 20', condition: 'Preventive Wellness', age: 31, gender: 'Female', phone: '+81 90-3456-7890', bloodType: 'A-', allergies: 'None' },
 ]
 
 const initialConsultations = [
-  { id: 1, patient: 'Aiko Suzuki', date: '2026-10-03', summary: 'Recovery progressing well. Adjusted medication dosage. Follow-up in 2 weeks.' },
-  { id: 2, patient: 'Hana Watanabe', date: '2026-09-30', summary: 'Post-operative review. Wound healing normally. Cleared for light activity.' },
-  { id: 3, patient: 'Takeshi Ito', date: '2026-09-28', summary: 'Initial assessment complete. Referred for lab work. Scheduled follow-up.' },
+  {
+    id: 1,
+    patient: 'Aiko Suzuki',
+    date: '2026-10-03',
+    diagnosis: 'Hypertension Under Control',
+    summary: 'Systolic blood pressure measured at 122/81 mmHg. Patient reports good compliance with Lisinopril 10mg. No dizzy spells or side effects. Advised continued morning walking routine.',
+    prescription: 'Lisinopril 10mg — once daily',
+    followUp: '4 weeks',
+  },
+  {
+    id: 2,
+    patient: 'Hana Watanabe',
+    date: '2026-09-30',
+    diagnosis: 'Post-operative Wound Check',
+    summary: 'Surgical site clean and dry with normal healing tissue. Suture removal completed without incident. Cleared for normal daily mobility.',
+    prescription: 'Topical soothing ointment as needed',
+    followUp: 'As needed',
+  },
+  {
+    id: 3,
+    patient: 'Takeshi Ito',
+    date: '2026-09-28',
+    diagnosis: 'Elevated Fasting Glucose',
+    summary: 'Fasting glucose was 114 mg/dL. Ordered follow-up HbA1c panel. Discussed carbohydrate reduction and structured aerobic exercise.',
+    prescription: 'Metformin 500mg pending test results',
+    followUp: '2 weeks',
+  },
 ]
 
 type ScheduleItem = typeof initialSchedule[number]
+type PatientItem = typeof initialPatients[number]
 
 const statusColors: Record<string, string> = {
-  completed: 'bg-emerald-500/15 text-emerald-400',
-  'in-progress': 'bg-amber-500/15 text-amber-400',
-  upcoming: 'bg-stone/15 text-stone',
+  completed: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+  'in-progress': 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
+  upcoming: 'bg-stone/15 text-stone border border-charcoal/40',
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  try {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  } catch {
+    return d
+  }
 }
 
-/* ─── Overview ─── */
+/* ─── Overview Section ─── */
 function OverviewSection({
   userName,
   schedule,
   patients,
   onNavigate,
   onUpdateStatus,
+  onOpenPatientFile,
 }: {
   userName: string
   schedule: ScheduleItem[]
-  patients: typeof initialPatients
+  patients: PatientItem[]
   onNavigate: (id: string) => void
   onUpdateStatus: (id: number, status: ScheduleItem['status']) => void
+  onOpenPatientFile: (patient: PatientItem) => void
 }) {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
+  const completedCount = schedule.filter((s) => s.status === 'completed').length
+  const inProgressCount = schedule.filter((s) => s.status === 'in-progress').length
+  const upcomingCount = schedule.filter((s) => s.status === 'upcoming').length
+
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1200px]">
-      {/* Greeting */}
-      <div className="grid lg:grid-cols-[1fr_180px] gap-6 items-start mb-10">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1100px] space-y-10">
+      {/* Header Banner */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-charcoal/30">
         <div>
-          <p className="text-stone text-xs tracking-[0.2em] uppercase mb-2">{greeting}, Doctor</p>
-          <h1 className="font-serif text-shiro text-3xl md:text-4xl leading-tight mb-2">{userName}</h1>
-          <p className="text-stone text-sm italic font-serif mb-6">Your practice, connected.</p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 max-w-md">
-            {[
-              { value: String(schedule.length), label: 'Today', sub: 'appointments' },
-              { value: String(patients.length), label: 'Total', sub: 'patients' },
-              { value: String(schedule.filter((s) => s.status === 'upcoming').length), label: 'Remaining', sub: 'today' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center p-4 rounded-xl border border-charcoal/30 bg-sumi/15">
-                <span className="text-2xl font-serif text-washi block">{stat.value}</span>
-                <span className="text-[0.6rem] text-stone tracking-wider uppercase block mt-1">{stat.label}</span>
-                <span className="text-[0.55rem] text-stone/50">{stat.sub}</span>
-              </div>
-            ))}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aka/10 border border-aka/30 mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-aka animate-pulse" />
+            <span className="text-[0.65rem] tracking-[0.2em] uppercase text-aka font-mono">
+              Clinical Sanctuary · Room 204
+            </span>
           </div>
+          <p className="text-stone text-xs tracking-[0.2em] uppercase mb-1">{greeting}</p>
+          <h1 className="font-serif text-shiro text-3xl md:text-4xl leading-tight">
+            {userName}
+          </h1>
+          <p className="text-stone text-sm italic font-serif mt-1">
+            "To cure sometimes, to relieve often, to comfort always."
+          </p>
         </div>
 
-        {/* Portrait image */}
-        <div className="hidden lg:block">
-          <div className="w-[180px] h-[260px] rounded-2xl overflow-hidden relative">
-            <img src="/images/doctor-portal.jpg" alt="" className="w-full h-full object-cover object-top opacity-35" />
-            <div className="absolute inset-0 bg-gradient-to-t from-kuro via-kuro/40 to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4">
-              <Stethoscope size={14} className="text-aka/70 mb-1" />
-              <p className="text-[0.6rem] text-mist/60 italic font-serif">Dedicated to care.</p>
-            </div>
-          </div>
+        {/* Quick Action Navigation */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => onNavigate('appointments')}
+            className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg transition-all"
+          >
+            <CalendarCheck size={14} /> View Day Schedule
+          </button>
+          <button
+            onClick={() => onNavigate('consultations')}
+            className="flex items-center gap-2 text-xs font-medium text-washi bg-sumi/40 hover:bg-sumi/70 border border-charcoal/50 px-4 py-2.5 rounded-lg transition-all"
+          >
+            <Plus size={14} className="text-aka" /> Write Clinical Note
+          </button>
         </div>
       </div>
 
-      {/* Today's schedule */}
-      <div className="mb-10">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xs tracking-[0.15em] uppercase text-stone">Today's Schedule</h2>
-            <span className="text-[0.6rem] text-kuro bg-aka/70 px-2 py-0.5 rounded-full">{schedule.length}</span>
+      {/* KPI Stats Strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20">
+          <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Today's Visits</span>
+          <span className="text-2xl md:text-3xl font-serif text-washi font-medium">{schedule.length}</span>
+          <span className="text-[0.6rem] text-stone/70 block mt-1">4 scheduled slots</span>
+        </div>
+        <div className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20">
+          <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">In Progress</span>
+          <span className="text-2xl md:text-3xl font-serif text-amber-400 font-medium">{inProgressCount}</span>
+          <span className="text-[0.6rem] text-amber-400/80 block mt-1">Consultation active</span>
+        </div>
+        <div className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20">
+          <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Completed Today</span>
+          <span className="text-2xl md:text-3xl font-serif text-emerald-400 font-medium">{completedCount}</span>
+          <span className="text-[0.6rem] text-emerald-400/80 block mt-1">{upcomingCount} upcoming</span>
+        </div>
+        <div className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20">
+          <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Total Assigned Patients</span>
+          <span className="text-2xl md:text-3xl font-serif text-washi font-medium">{patients.length}</span>
+          <span className="text-[0.6rem] text-mist/70 block mt-1">Primary care panel</span>
+        </div>
+      </div>
+
+      {/* Today's Schedule Timeline */}
+      <div className="p-6 rounded-2xl border border-charcoal/30 bg-sumi/15 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-charcoal/30">
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-aka" />
+            <h2 className="text-xs tracking-[0.18em] uppercase text-stone font-mono">
+              Live Clinical Flow · Today
+            </h2>
           </div>
-          <button onClick={() => onNavigate('appointments')} className="text-[0.65rem] text-aka tracking-wider uppercase flex items-center gap-1 hover:gap-2 transition-all">
-            Full schedule <ChevronRight size={10} />
+          <button
+            onClick={() => onNavigate('appointments')}
+            className="text-[0.65rem] text-aka tracking-wider uppercase flex items-center gap-1 hover:gap-2 transition-all font-medium"
+          >
+            Manage Schedule <ChevronRight size={12} />
           </button>
         </div>
 
-        <div className="relative">
-          <div className="absolute left-[23px] top-4 bottom-4 w-px bg-gradient-to-b from-charcoal/50 via-charcoal/30 to-transparent" />
-          <div className="space-y-1">
-            {schedule.map((slot) => (
-              <div key={slot.id} className="relative flex items-center gap-5 p-4 rounded-xl hover:bg-sumi/20 transition-all duration-300 group">
-                <div className={`w-[10px] h-[10px] rounded-full border-2 flex-shrink-0 z-10 ${
-                  slot.status === 'completed' ? 'border-emerald-500 bg-emerald-500/30' :
-                  slot.status === 'in-progress' ? 'border-amber-400 bg-amber-400/30' :
-                  'border-charcoal bg-kuro'
-                }`} />
-                <span className="text-xs text-stone w-16 flex-shrink-0 font-mono">{slot.time}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-washi">{slot.patient}</p>
-                  <p className="text-xs text-stone">{slot.type}</p>
+        <div className="space-y-3 pt-1">
+          {schedule.map((item) => (
+            <div
+              key={item.id}
+              className="p-4 rounded-xl border border-charcoal/20 bg-kuro/50 hover:border-charcoal/60 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-12 rounded-lg bg-sumi border border-charcoal/40 flex items-center justify-center flex-shrink-0 font-mono text-xs text-washi">
+                  {item.time}
                 </div>
-                <span className={`text-[0.6rem] px-2.5 py-1 rounded-full tracking-wider uppercase flex-shrink-0 ${statusColors[slot.status]}`}>
-                  {slot.status.replace('-', ' ')}
-                </span>
-                {slot.status === 'upcoming' && (
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-sm font-medium text-washi">{item.patient}</h3>
+                    <span className={`text-[0.6rem] px-2 py-0.5 rounded uppercase tracking-wider font-mono ${statusColors[item.status]}`}>
+                      {item.status.replace('-', ' ')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone">{item.type} · {item.room}</p>
+                  {item.notes && <p className="text-xs text-mist/70 mt-1 italic">"{item.notes}"</p>}
+                </div>
+              </div>
+
+              {/* Status Action Buttons */}
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                {item.status === 'upcoming' && (
                   <button
-                    onClick={() => onUpdateStatus(slot.id, 'in-progress')}
-                    className="text-[0.6rem] text-aka border border-aka/30 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    onClick={() => onUpdateStatus(item.id, 'in-progress')}
+                    className="text-xs text-kuro bg-amber-400 hover:bg-amber-300 font-medium px-3 py-1.5 rounded-lg transition-colors"
                   >
-                    Start
+                    Start Visit
                   </button>
                 )}
-                {slot.status === 'in-progress' && (
+                {item.status === 'in-progress' && (
                   <button
-                    onClick={() => onUpdateStatus(slot.id, 'completed')}
-                    className="text-[0.6rem] text-emerald-400 border border-emerald-400/30 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    onClick={() => onUpdateStatus(item.id, 'completed')}
+                    className="text-xs text-kuro bg-emerald-400 hover:bg-emerald-300 font-medium px-3 py-1.5 rounded-lg transition-colors"
                   >
-                    Complete
+                    Complete Visit
                   </button>
+                )}
+                {item.status === 'completed' && (
+                  <span className="text-xs text-emerald-400/70 flex items-center gap-1 font-mono">
+                    <Check size={13} /> Completed
+                  </span>
                 )}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Recent patients */}
-      <div>
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xs tracking-[0.15em] uppercase text-stone">Recent Patients</h2>
-          <button onClick={() => onNavigate('patients')} className="text-[0.65rem] text-aka tracking-wider uppercase flex items-center gap-1 hover:gap-2 transition-all">
-            All patients <ChevronRight size={10} />
+      {/* Patient Panel Preview */}
+      <div className="p-6 rounded-2xl border border-charcoal/30 bg-sumi/15 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-charcoal/30">
+          <div className="flex items-center gap-2">
+            <Users size={16} className="text-aka" />
+            <h2 className="text-xs tracking-[0.18em] uppercase text-stone font-mono">
+              Patient Roster (Recent Visits)
+            </h2>
+          </div>
+          <button
+            onClick={() => onNavigate('patients')}
+            className="text-[0.65rem] text-aka tracking-wider uppercase flex items-center gap-1 hover:gap-2 transition-all font-medium"
+          >
+            All Patients ({patients.length}) <ChevronRight size={12} />
           </button>
         </div>
-        <div className="grid sm:grid-cols-2 gap-3">
+
+        <div className="grid sm:grid-cols-2 gap-3 pt-1">
           {patients.slice(0, 4).map((p) => (
-            <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300 cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-sumi border border-charcoal/50 flex items-center justify-center flex-shrink-0">
-                <span className="text-washi text-sm font-medium">{p.name.charAt(0)}</span>
+            <div
+              key={p.id}
+              onClick={() => onOpenPatientFile(p)}
+              className="p-4 rounded-xl border border-charcoal/20 bg-kuro/40 hover:border-aka/40 transition-all cursor-pointer flex items-center gap-3.5 group"
+            >
+              <div className="w-10 h-10 rounded-full bg-sumi border border-charcoal/50 flex items-center justify-center flex-shrink-0 text-washi font-medium">
+                {p.name.charAt(0)}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-washi truncate">{p.name}</p>
-                <p className="text-[0.65rem] text-stone">{p.condition}</p>
+                <p className="text-sm text-washi font-medium truncate group-hover:text-aka transition-colors">
+                  {p.name}
+                </p>
+                <p className="text-xs text-stone truncate">{p.condition}</p>
+                <p className="text-[0.65rem] text-mist/60">Age {p.age} · Blood: {p.bloodType}</p>
               </div>
-              <span className="text-[0.6rem] text-stone/60">{p.lastVisit}</span>
+              <ChevronRight size={14} className="text-charcoal group-hover:text-aka transition-colors" />
             </div>
           ))}
         </div>
@@ -194,7 +293,7 @@ function OverviewSection({
   )
 }
 
-/* ─── Appointments ─── */
+/* ─── Schedule & Appointments Section ─── */
 function AppointmentsSection({
   schedule,
   setSchedule,
@@ -204,398 +303,926 @@ function AppointmentsSection({
   setSchedule: React.Dispatch<React.SetStateAction<ScheduleItem[]>>
   onUpdateStatus: (id: number, status: ScheduleItem['status']) => void
 }) {
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ patient: '', type: '', time: '' })
+  const [showAdd, setShowAdd] = useState(false)
+  const [filter, setFilter] = useState<'all' | 'upcoming' | 'in-progress' | 'completed'>('all')
+  const [search, setSearch] = useState('')
+  const [form, setForm] = useState({
+    patient: '',
+    time: '02:00 PM',
+    type: 'Clinical Consultation',
+    room: 'Room 204 (In-Clinic)',
+    mode: 'In-Clinic',
+    notes: '',
+  })
 
-  const handleAdd = () => {
-    if (!form.patient || !form.time) return
-    setSchedule((prev) => [...prev, {
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.patient) return
+    const newSlot: ScheduleItem = {
       id: Date.now(),
-      time: form.time,
       patient: form.patient,
-      type: form.type || 'Consultation',
-      status: 'upcoming' as const,
+      time: form.time,
+      type: form.type,
+      room: form.room,
+      mode: form.mode,
+      status: 'upcoming',
+      notes: form.notes || 'Scheduled appointment',
+    }
+    setSchedule((prev) => [...prev, newSlot])
+    setForm({
+      patient: '',
+      time: '02:00 PM',
+      type: 'Clinical Consultation',
+      room: 'Room 204 (In-Clinic)',
+      mode: 'In-Clinic',
       notes: '',
-    }])
-    setForm({ patient: '', type: '', time: '' })
-    setShowForm(false)
+    })
+    setShowAdd(false)
   }
 
-  const handleRemove = (id: number) => setSchedule((prev) => prev.filter((s) => s.id !== id))
+  const handleRemove = (id: number) => {
+    setSchedule((prev) => prev.filter((s) => s.id !== id))
+  }
+
+  const filtered = schedule.filter((s) => {
+    const matchesFilter = filter === 'all' || s.status === filter
+    const matchesSearch =
+      s.patient.toLowerCase().includes(search.toLowerCase()) ||
+      s.type.toLowerCase().includes(search.toLowerCase())
+    return matchesFilter && matchesSearch
+  })
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px]">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px] space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl text-shiro mb-1">Appointments</h1>
-          <p className="text-stone text-sm">Your complete schedule and patient visits.</p>
+          <h1 className="font-serif text-3xl text-shiro mb-1">Clinical Schedule</h1>
+          <p className="text-stone text-sm">Real-time consultation queue and patient visit management.</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-4 py-2.5 rounded transition-colors">
-          {showForm ? <X size={14} /> : <Plus size={14} />}
-          {showForm ? 'Cancel' : 'Add Slot'}
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg transition-colors w-fit"
+        >
+          {showAdd ? <X size={14} /> : <Plus size={14} />}
+          {showAdd ? 'Close' : 'Add Consultation Slot'}
         </button>
       </div>
 
-      {showForm && (
-        <div className="mb-8 p-6 rounded-xl border border-aka/20 bg-sumi/20">
-          <h3 className="text-sm text-washi font-medium mb-4">Add Appointment Slot</h3>
-          <div className="grid sm:grid-cols-3 gap-4 mb-4">
+      {showAdd && (
+        <form onSubmit={handleAdd} className="p-6 rounded-2xl border border-aka/30 bg-sumi/30 space-y-4 shadow-xl animate-fadeIn">
+          <h3 className="font-serif text-lg text-washi">Add Patient to Schedule</h3>
+          <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Patient *</label>
-              <input type="text" value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} placeholder="Patient name"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors" />
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Patient Name *</label>
+              <input
+                type="text"
+                value={form.patient}
+                onChange={(e) => setForm({ ...form, patient: e.target.value })}
+                placeholder="Full legal name"
+                required
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
+              />
             </div>
             <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Type</label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors">
-                <option value="Consultation">Consultation</option>
-                <option value="Follow-up">Follow-up</option>
-                <option value="Check-up">Check-up</option>
-                <option value="New Patient">New Patient</option>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Appointment Time</label>
+              <input
+                type="text"
+                value={form.time}
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
+                placeholder="e.g. 02:30 PM"
+                required
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Visit Type</label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
+              >
+                <option value="Clinical Consultation">Clinical Consultation</option>
+                <option value="Routine Follow-up">Routine Follow-up</option>
+                <option value="General Check-up">General Check-up</option>
+                <option value="New Patient Assessment">New Patient Assessment</option>
+                <option value="Telehealth Review">Telehealth Review</option>
               </select>
             </div>
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Time *</label>
-              <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors" />
-            </div>
           </div>
-          <button onClick={handleAdd} disabled={!form.patient || !form.time}
-            className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            <Check size={14} /> Add Slot
+          <div>
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Initial Clinical Concern</label>
+            <input
+              type="text"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="Primary symptoms or referral reason..."
+              className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
+            />
+          </div>
+          <button
+            type="submit"
+            className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
+          >
+            <Check size={14} /> Add to Timeline
           </button>
-        </div>
+        </form>
       )}
 
-      <div className="space-y-2">
-        {schedule.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-charcoal/30 rounded-xl">
-            <Calendar size={28} className="text-charcoal mx-auto mb-3" />
-            <p className="text-stone text-sm">No appointments scheduled.</p>
-          </div>
-        ) : (
-          schedule.map((slot) => (
-            <div key={slot.id} className="flex items-center gap-5 p-5 rounded-xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-xl bg-kuro border border-charcoal/40 flex flex-col items-center justify-center flex-shrink-0">
-                <Clock size={14} className="text-stone mb-0.5" />
-                <span className="text-xs text-washi font-mono">{slot.time.split(' ')[0]}</span>
+      {/* Filter Tabs & Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-1 bg-sumi/30 p-1 rounded-lg border border-charcoal/30 w-fit">
+          {(['all', 'upcoming', 'in-progress', 'completed'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              className={`px-3 py-1.5 rounded text-xs capitalize transition-colors ${
+                filter === tab ? 'bg-aka/20 text-washi font-medium border border-aka/30' : 'text-stone hover:text-washi'
+              }`}
+            >
+              {tab.replace('-', ' ')}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative min-w-[220px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search patient or visit type..."
+            className="w-full pl-9 pr-3 py-2 bg-sumi/20 border border-charcoal/40 rounded-lg text-xs text-washi placeholder:text-stone/50 focus:outline-none focus:border-aka/40"
+          />
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="space-y-4">
+        {filtered.map((item) => (
+          <div
+            key={item.id}
+            className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20 hover:border-charcoal/60 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-14 rounded-xl bg-kuro border border-charcoal/50 flex flex-col items-center justify-center font-mono text-xs text-washi flex-shrink-0">
+                <Clock size={12} className="text-aka mb-0.5" />
+                {item.time.split(' ')[0]}
+                <span className="text-[0.55rem] text-stone">{item.time.split(' ')[1]}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-washi font-medium">{slot.patient}</p>
-                <p className="text-xs text-stone">{slot.type}</p>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base text-washi font-medium">{item.patient}</h3>
+                  <span className={`text-[0.6rem] px-2 py-0.5 rounded uppercase tracking-wider font-mono ${statusColors[item.status]}`}>
+                    {item.status.replace('-', ' ')}
+                  </span>
+                </div>
+                <p className="text-xs text-stone">{item.type} · {item.room}</p>
+                {item.notes && <p className="text-xs text-mist/80 mt-1 italic">"{item.notes}"</p>}
               </div>
-              <span className={`text-[0.6rem] px-2.5 py-1 rounded-full tracking-wider uppercase ${statusColors[slot.status]}`}>
-                {slot.status.replace('-', ' ')}
-              </span>
-              {slot.status === 'upcoming' && (
-                <button onClick={() => onUpdateStatus(slot.id, 'in-progress')} className="text-[0.6rem] text-aka border border-aka/30 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Start</button>
+            </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-center">
+              {item.status === 'upcoming' && (
+                <button
+                  onClick={() => onUpdateStatus(item.id, 'in-progress')}
+                  className="text-xs text-kuro bg-amber-400 hover:bg-amber-300 font-medium px-3.5 py-1.5 rounded-lg transition-colors"
+                >
+                  Start Visit
+                </button>
               )}
-              {slot.status === 'in-progress' && (
-                <button onClick={() => onUpdateStatus(slot.id, 'completed')} className="text-[0.6rem] text-emerald-400 border border-emerald-400/30 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Complete</button>
+              {item.status === 'in-progress' && (
+                <button
+                  onClick={() => onUpdateStatus(item.id, 'completed')}
+                  className="text-xs text-kuro bg-emerald-400 hover:bg-emerald-300 font-medium px-3.5 py-1.5 rounded-lg transition-colors"
+                >
+                  Complete Visit
+                </button>
               )}
-              <button onClick={() => handleRemove(slot.id)} className="text-stone hover:text-aka transition-colors opacity-0 group-hover:opacity-100" title="Remove">
-                <X size={16} />
+              <button
+                onClick={() => handleRemove(item.id)}
+                className="text-stone hover:text-aka border border-charcoal/30 hover:border-aka/40 p-1.5 rounded-lg transition-colors"
+                title="Cancel slot"
+              >
+                <X size={14} />
               </button>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ─── Patients ─── */
+/* ─── Patients Section ─── */
 function PatientsSection({
   patients,
   setPatients,
+  onOpenPatientFile,
 }: {
-  patients: typeof initialPatients
-  setPatients: React.Dispatch<React.SetStateAction<typeof initialPatients>>
+  patients: PatientItem[]
+  setPatients: React.Dispatch<React.SetStateAction<PatientItem[]>>
+  onOpenPatientFile: (patient: PatientItem) => void
 }) {
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', condition: '', age: '' })
+  const [showAdd, setShowAdd] = useState(false)
   const [search, setSearch] = useState('')
+  const [form, setForm] = useState({
+    name: '',
+    age: '',
+    gender: 'Female',
+    condition: '',
+    phone: '',
+    bloodType: 'A+',
+    allergies: 'None',
+  })
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
     if (!form.name) return
-    setPatients((prev) => [...prev, { id: Date.now(), name: form.name, lastVisit: 'New', condition: form.condition || 'Pending assessment', age: parseInt(form.age) || 0 }])
-    setForm({ name: '', condition: '', age: '' })
-    setShowForm(false)
+    const newP: PatientItem = {
+      id: Date.now(),
+      name: form.name,
+      age: parseInt(form.age) || 30,
+      gender: form.gender,
+      condition: form.condition || 'General Assessment',
+      phone: form.phone || '+81 90-0000-0000',
+      bloodType: form.bloodType,
+      allergies: form.allergies,
+      lastVisit: 'New Intake',
+    }
+    setPatients((prev) => [newP, ...prev])
+    setForm({
+      name: '',
+      age: '',
+      gender: 'Female',
+      condition: '',
+      phone: '',
+      bloodType: 'A+',
+      allergies: 'None',
+    })
+    setShowAdd(false)
   }
 
-  const handleRemove = (id: number) => setPatients((prev) => prev.filter((p) => p.id !== id))
+  const handleRemove = (id: number) => {
+    setPatients((prev) => prev.filter((p) => p.id !== id))
+  }
 
-  const filtered = patients.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+  const filtered = patients.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.condition.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px]">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px] space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl text-shiro mb-1">My Patients</h1>
-          <p className="text-stone text-sm">{patients.length} patients in your care.</p>
+          <h1 className="font-serif text-3xl text-shiro mb-1">Assigned Patient Panel</h1>
+          <p className="text-stone text-sm">Comprehensive medical records, history, and patient contact data.</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-4 py-2.5 rounded transition-colors">
-          {showForm ? <X size={14} /> : <Plus size={14} />}
-          {showForm ? 'Cancel' : 'Add Patient'}
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg transition-colors w-fit"
+        >
+          {showAdd ? <X size={14} /> : <Plus size={14} />}
+          {showAdd ? 'Close' : 'Register New Patient'}
         </button>
       </div>
 
+      {showAdd && (
+        <form onSubmit={handleAdd} className="p-6 rounded-2xl border border-aka/30 bg-sumi/30 space-y-4 shadow-xl animate-fadeIn">
+          <h3 className="font-serif text-lg text-washi">New Patient Intake</h3>
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Full Name *</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+                placeholder="Patient legal name"
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Age</label>
+              <input
+                type="number"
+                value={form.age}
+                onChange={(e) => setForm({ ...form, age: e.target.value })}
+                placeholder="Years"
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Gender</label>
+              <select
+                value={form.gender}
+                onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              >
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Non-Binary">Non-Binary</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Primary Condition</label>
+              <input
+                type="text"
+                value={form.condition}
+                onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                placeholder="e.g. Hypertension, Diabetes"
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Phone Contact</label>
+              <input
+                type="text"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="+81 90-..."
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Blood Type</label>
+              <select
+                value={form.bloodType}
+                onChange={(e) => setForm({ ...form, bloodType: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              >
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
+          >
+            <Check size={14} /> Save Patient Chart
+          </button>
+        </form>
+      )}
+
       {/* Search */}
-      <div className="mb-6">
+      <div className="relative max-w-md">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search patients..."
-          className="w-full px-4 py-3 bg-sumi/20 border border-charcoal/30 rounded-lg text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/30 transition-colors"
+          placeholder="Search patients by name or condition..."
+          className="w-full pl-9 pr-3 py-2.5 bg-sumi/20 border border-charcoal/40 rounded-lg text-xs text-washi placeholder:text-stone/50 focus:outline-none focus:border-aka/40"
         />
       </div>
 
-      {showForm && (
-        <div className="mb-6 p-6 rounded-xl border border-aka/20 bg-sumi/20">
-          <h3 className="text-sm text-washi font-medium mb-4">Add New Patient</h3>
-          <div className="grid sm:grid-cols-3 gap-4 mb-4">
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Name *</label>
-              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Full name"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors" />
-            </div>
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Condition</label>
-              <input type="text" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} placeholder="Primary condition"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors" />
-            </div>
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Age</label>
-              <input type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} placeholder="Age"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors" />
-            </div>
-          </div>
-          <button onClick={handleAdd} disabled={!form.name}
-            className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            <Check size={14} /> Add Patient
-          </button>
-        </div>
-      )}
-
-      <div className="space-y-3">
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-charcoal/30 rounded-xl">
-            <Users size={28} className="text-charcoal mx-auto mb-3" />
-            <p className="text-stone text-sm">{search ? 'No patients found.' : 'No patients yet.'}</p>
-          </div>
-        ) : (
-          filtered.map((p) => (
-            <div key={p.id} className="flex items-center gap-5 p-5 rounded-xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-full bg-sumi border border-charcoal/50 flex items-center justify-center flex-shrink-0">
-                <span className="text-washi text-lg font-serif">{p.name.charAt(0)}</span>
+      {/* Patients Grid */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        {filtered.map((p) => (
+          <div
+            key={p.id}
+            className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20 hover:border-charcoal/60 transition-all flex flex-col justify-between group"
+          >
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-sumi border border-charcoal/50 flex items-center justify-center font-serif text-lg text-washi">
+                  {p.name.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-base text-washi font-medium group-hover:text-aka transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="text-xs text-stone">{p.condition}</p>
+                  <p className="text-[0.65rem] text-mist/60 mt-0.5">
+                    Age {p.age} · {p.gender} · {p.bloodType}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-washi font-medium">{p.name}</p>
-                <p className="text-xs text-stone">{p.condition}{p.age ? ` · Age ${p.age}` : ''}</p>
-              </div>
-              <div className="text-right flex-shrink-0 hidden sm:block">
-                <p className="text-xs text-stone">Last visit</p>
-                <p className="text-xs text-mist">{p.lastVisit}</p>
-              </div>
-              <button onClick={() => handleRemove(p.id)} className="text-stone hover:text-aka transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0" title="Remove">
-                <X size={16} />
+              <button
+                onClick={() => handleRemove(p.id)}
+                className="text-stone hover:text-aka transition-colors opacity-0 group-hover:opacity-100 p-1"
+                title="Archive Patient"
+              >
+                <X size={14} />
               </button>
             </div>
-          ))
-        )}
+
+            <div className="pt-3 border-t border-charcoal/20 flex items-center justify-between">
+              <span className="text-[0.65rem] text-stone">Last: {p.lastVisit}</span>
+              <button
+                onClick={() => onOpenPatientFile(p)}
+                className="text-xs text-aka hover:text-washi flex items-center gap-1 font-medium transition-colors"
+              >
+                Open Chart <ChevronRight size={12} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ─── Consultations ─── */
+/* ─── Consultations Section ─── */
 function ConsultationsSection({
   consultations,
   setConsultations,
+  patients,
 }: {
   consultations: typeof initialConsultations
   setConsultations: React.Dispatch<React.SetStateAction<typeof initialConsultations>>
+  patients: PatientItem[]
 }) {
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ patient: '', summary: '' })
+  const [showAdd, setShowAdd] = useState(false)
+  const [search, setSearch] = useState('')
+  const [form, setForm] = useState({
+    patient: patients[0]?.name || 'Aiko Suzuki',
+    diagnosis: '',
+    summary: '',
+    prescription: '',
+    followUp: '2 weeks',
+    date: new Date().toISOString().split('T')[0],
+  })
 
-  const handleAdd = () => {
-    if (!form.patient || !form.summary) return
-    setConsultations((prev) => [
-      { id: Date.now(), patient: form.patient, date: new Date().toISOString().split('T')[0], summary: form.summary },
-      ...prev,
-    ])
-    setForm({ patient: '', summary: '' })
-    setShowForm(false)
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.summary || !form.diagnosis) return
+    const newNote = {
+      id: Date.now(),
+      patient: form.patient,
+      date: form.date,
+      diagnosis: form.diagnosis,
+      summary: form.summary,
+      prescription: form.prescription || 'None',
+      followUp: form.followUp,
+    }
+    setConsultations((prev) => [newNote, ...prev])
+    setForm({
+      patient: patients[0]?.name || 'Aiko Suzuki',
+      diagnosis: '',
+      summary: '',
+      prescription: '',
+      followUp: '2 weeks',
+      date: new Date().toISOString().split('T')[0],
+    })
+    setShowAdd(false)
   }
 
-  const handleRemove = (id: number) => setConsultations((prev) => prev.filter((c) => c.id !== id))
+  const handleRemove = (id: number) => {
+    setConsultations((prev) => prev.filter((c) => c.id !== id))
+  }
+
+  const filtered = consultations.filter(
+    (c) =>
+      c.patient.toLowerCase().includes(search.toLowerCase()) ||
+      c.diagnosis.toLowerCase().includes(search.toLowerCase()) ||
+      c.summary.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px]">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px] space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl text-shiro mb-1">Consultations</h1>
-          <p className="text-stone text-sm">Notes, follow-ups, and clinical records.</p>
+          <h1 className="font-serif text-3xl text-shiro mb-1">Clinical Notes & Observations</h1>
+          <p className="text-stone text-sm">Document diagnostic conclusions, prescriptions, and follow-up directives.</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-4 py-2.5 rounded transition-colors">
-          {showForm ? <X size={14} /> : <Plus size={14} />}
-          {showForm ? 'Cancel' : 'Add Note'}
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg transition-colors w-fit"
+        >
+          {showAdd ? <X size={14} /> : <Plus size={14} />}
+          {showAdd ? 'Close' : 'Write Clinical Note'}
         </button>
       </div>
 
-      {showForm && (
-        <div className="mb-8 p-6 rounded-xl border border-aka/20 bg-sumi/20">
-          <h3 className="text-sm text-washi font-medium mb-4">New Consultation Note</h3>
-          <div className="mb-4">
-            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Patient *</label>
-            <input type="text" value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} placeholder="Patient name"
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors" />
+      {showAdd && (
+        <form onSubmit={handleAdd} className="p-6 rounded-2xl border border-aka/30 bg-sumi/30 space-y-4 shadow-xl animate-fadeIn">
+          <h3 className="font-serif text-lg text-washi">File New Clinical Encounter Note</h3>
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Patient *</label>
+              <select
+                value={form.patient}
+                onChange={(e) => setForm({ ...form, patient: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              >
+                {patients.map((p) => (
+                  <option key={p.id} value={p.name}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Primary Diagnosis *</label>
+              <input
+                type="text"
+                value={form.diagnosis}
+                onChange={(e) => setForm({ ...form, diagnosis: e.target.value })}
+                placeholder="e.g. Mild Hypertension, Bronchitis"
+                required
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Recommended Follow-up</label>
+              <input
+                type="text"
+                value={form.followUp}
+                onChange={(e) => setForm({ ...form, followUp: e.target.value })}
+                placeholder="e.g. 2 weeks, 1 month"
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+              />
+            </div>
           </div>
-          <div className="mb-4">
-            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Summary *</label>
-            <textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} placeholder="Consultation summary..." rows={4}
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors resize-none" />
+          <div>
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Clinical Findings & Treatment Plan *</label>
+            <textarea
+              value={form.summary}
+              onChange={(e) => setForm({ ...form, summary: e.target.value })}
+              placeholder="Detailed physical exam observations, lab analysis, and patient counseling..."
+              rows={4}
+              required
+              className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi resize-none"
+            />
           </div>
-          <button onClick={handleAdd} disabled={!form.patient || !form.summary}
-            className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            <Check size={14} /> Save Note
+          <div>
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Prescribed Medication & Dosage</label>
+            <input
+              type="text"
+              value={form.prescription}
+              onChange={(e) => setForm({ ...form, prescription: e.target.value })}
+              placeholder="e.g. Amoxicillin 500mg TID for 7 days"
+              className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+            />
+          </div>
+          <button
+            type="submit"
+            className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
+          >
+            <Check size={14} /> Commit to Electronic Health Record
           </button>
-        </div>
+        </form>
       )}
 
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by patient, diagnosis, or keyword..."
+          className="w-full pl-9 pr-3 py-2.5 bg-sumi/20 border border-charcoal/40 rounded-lg text-xs text-washi placeholder:text-stone/50 focus:outline-none focus:border-aka/40"
+        />
+      </div>
+
       <div className="space-y-4">
-        {consultations.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-charcoal/30 rounded-xl">
-            <FileText size={28} className="text-charcoal mx-auto mb-3" />
-            <p className="text-stone text-sm">No consultation notes yet.</p>
-          </div>
-        ) : (
-          consultations.map((note) => (
-            <div key={note.id} className="p-5 rounded-xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300 group">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-sumi border border-charcoal/50 flex items-center justify-center">
-                    <span className="text-washi text-xs">{note.patient.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-washi">{note.patient}</p>
-                    <p className="text-[0.6rem] text-stone">{formatDate(note.date)}</p>
-                  </div>
+        {filtered.map((item) => (
+          <div
+            key={item.id}
+            className="p-6 rounded-2xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/60 transition-all group"
+          >
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <h3 className="text-base text-washi font-medium">{item.patient}</h3>
+                  <span className="text-stone/50">·</span>
+                  <span className="text-xs text-stone">{formatDate(item.date)}</span>
                 </div>
-                <button onClick={() => handleRemove(note.id)} className="text-charcoal hover:text-aka transition-colors opacity-0 group-hover:opacity-100" title="Remove">
-                  <X size={14} />
-                </button>
+                <p className="text-xs text-aka font-mono uppercase tracking-wider">{item.diagnosis}</p>
               </div>
-              <p className="text-sm text-mist leading-relaxed">{note.summary}</p>
+              <button
+                onClick={() => handleRemove(item.id)}
+                className="text-stone hover:text-aka transition-colors opacity-0 group-hover:opacity-100 p-1"
+                title="Remove Note"
+              >
+                <X size={14} />
+              </button>
             </div>
-          ))
-        )}
+
+            <p className="text-sm text-mist/90 leading-relaxed mb-4">{item.summary}</p>
+
+            <div className="pt-3 border-t border-charcoal/20 flex flex-wrap items-center justify-between gap-3 text-xs text-stone font-mono">
+              <span className="flex items-center gap-1.5 text-washi">
+                <Pill size={13} className="text-aka" /> Rx: {item.prescription}
+              </span>
+              <span>Next Review: {item.followUp}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ─── Profile ─── */
+/* ─── Physician Profile Section ─── */
 function ProfileSection({ user }: { user: { full_name: string; email: string; role: string } }) {
   const [editing, setEditing] = useState(false)
-  const [name, setName] = useState(user.full_name)
-  const [specialty, setSpecialty] = useState('General Physician')
   const [saved, setSaved] = useState(false)
+  const [profile, setProfile] = useState({
+    name: user.full_name,
+    specialty: 'Internal Medicine & Cardiovascular Wellness',
+    license: 'MD-JPN-820491',
+    clinicRoom: 'Sanctuary Suite 204',
+    hours: 'Mon - Fri (09:00 - 17:00)',
+    bio: 'Dedicated to holistic, patient-centered internal medicine integrating modern evidence-based therapy with serene, attentive clinical presence.',
+  })
 
-  const handleSave = () => { setEditing(false); setSaved(true); setTimeout(() => setSaved(false), 2000) }
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    setEditing(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[600px]">
-      <h1 className="font-serif text-2xl text-shiro mb-8">Profile</h1>
-      <div className="flex items-center gap-5 mb-10">
-        <div className="w-16 h-16 rounded-full bg-sumi border border-charcoal flex items-center justify-center">
-          <span className="text-washi text-xl font-serif">{name.charAt(0)}</span>
-        </div>
-        <div>
-          <h2 className="text-lg text-washi font-medium">{name}</h2>
-          <p className="text-xs text-stone">{user.email}</p>
-          <span className="inline-block mt-1 text-[0.6rem] text-aka tracking-wider uppercase border border-aka/30 px-2 py-0.5 rounded">{user.role}</span>
-        </div>
+    <div className="p-6 md:p-10 lg:p-12 max-w-[800px] space-y-8">
+      <div>
+        <h1 className="font-serif text-3xl text-shiro mb-1">Physician Credential & Profile</h1>
+        <p className="text-stone text-sm">Public directory representation and clinical licensing metadata.</p>
       </div>
 
       {saved && (
-        <div className="mb-6 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-          <Check size={14} className="text-emerald-400" />
-          <span className="text-sm text-emerald-400">Profile saved successfully.</span>
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-400 animate-fadeIn">
+          <Check size={14} /> Profile and clinical credentials updated.
         </div>
       )}
 
-      <div className="space-y-6">
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Full Name</label>
-          {editing ? (
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors" />
-          ) : (
-            <p className="text-sm text-washi">{name}</p>
-          )}
+      <div className="flex items-center gap-5 p-5 rounded-2xl border border-charcoal/30 bg-sumi/20">
+        <div className="w-16 h-16 rounded-full bg-sumi border border-charcoal flex items-center justify-center flex-shrink-0">
+          <Stethoscope size={24} className="text-aka" />
         </div>
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Specialty</label>
-          {editing ? (
-            <input type="text" value={specialty} onChange={(e) => setSpecialty(e.target.value)}
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors" />
-          ) : (
-            <p className="text-sm text-washi">{specialty}</p>
-          )}
-        </div>
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Email</label>
-          <p className="text-sm text-washi">{user.email}</p>
-        </div>
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Role</label>
-          <p className="text-sm text-washi capitalize">{user.role}</p>
+        <div>
+          <h2 className="text-xl text-washi font-medium">{profile.name}</h2>
+          <p className="text-xs text-stone">{profile.specialty}</p>
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="text-[0.6rem] text-aka tracking-wider uppercase border border-aka/30 px-2 py-0.5 rounded font-mono">
+              License: {profile.license}
+            </span>
+            <span className="text-[0.6rem] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+              Active Medical Staff
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="mt-8">
-        {editing ? (
-          <div className="flex gap-3">
-            <button onClick={handleSave} className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors">
-              <Save size={14} /> Save Changes
-            </button>
-            <button onClick={() => { setEditing(false); setName(user.full_name) }} className="text-xs text-stone hover:text-washi px-4 py-2.5 rounded border border-charcoal/40 hover:border-charcoal transition-colors">Cancel</button>
+      <form onSubmit={handleSave} className="space-y-5">
+        <div className="grid sm:grid-cols-2 gap-5">
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Doctor Name</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.name}</p>
+            )}
           </div>
-        ) : (
-          <button onClick={() => setEditing(true)} className="flex items-center gap-2 text-xs text-stone hover:text-washi px-4 py-2.5 rounded border border-charcoal/40 hover:border-charcoal transition-colors">
-            <Edit3 size={14} /> Edit Profile
-          </button>
-        )}
-      </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Clinical Department</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.specialty}
+                onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.specialty}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Assigned Clinic Suite</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.clinicRoom}
+                onChange={(e) => setProfile({ ...profile, clinicRoom: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.clinicRoom}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Clinical Hours</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.hours}
+                onChange={(e) => setProfile({ ...profile, hours: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.hours}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10 sm:col-span-2">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Clinical Philosophy & Bio</label>
+            {editing ? (
+              <textarea
+                value={profile.bio}
+                onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi resize-none"
+              />
+            ) : (
+              <p className="text-sm text-washi leading-relaxed">{profile.bio}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-2">
+          {editing ? (
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
+              >
+                <Save size={14} /> Save Credentials
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="text-xs text-stone hover:text-washi px-4 py-2.5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-2 text-xs text-washi bg-sumi/40 hover:bg-sumi/70 border border-charcoal/40 px-4 py-2.5 rounded-lg transition-colors"
+            >
+              <Edit3 size={14} /> Update Credentials
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   )
 }
 
-/* ─── Main ─── */
+/* ─── Main Doctor Dashboard ─── */
 export default function DoctorDashboard() {
   const { user } = useAuth()
   const [section, setSection] = useState('overview')
   const [schedule, setSchedule] = useState(initialSchedule)
   const [patients, setPatients] = useState(initialPatients)
   const [consultations, setConsultations] = useState(initialConsultations)
+  const [selectedPatientFile, setSelectedPatientFile] = useState<PatientItem | null>(null)
 
   const handleUpdateStatus = (id: number, status: ScheduleItem['status']) => {
-    setSchedule((prev) => prev.map((s) => s.id === id ? { ...s, status } : s))
+    setSchedule((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)))
   }
 
   if (!user) return null
 
   return (
-    <DashboardLayout navItems={navItems} activeSection={section} onNavigate={setSection} roleLabel="Doctor Portal">
-      {section === 'overview' && <OverviewSection userName={user.full_name} schedule={schedule} patients={patients} onNavigate={setSection} onUpdateStatus={handleUpdateStatus} />}
-      {section === 'appointments' && <AppointmentsSection schedule={schedule} setSchedule={setSchedule} onUpdateStatus={handleUpdateStatus} />}
-      {section === 'patients' && <PatientsSection patients={patients} setPatients={setPatients} />}
-      {section === 'consultations' && <ConsultationsSection consultations={consultations} setConsultations={setConsultations} />}
+    <DashboardLayout
+      navItems={navItems}
+      activeSection={section}
+      onNavigate={setSection}
+      roleLabel="Doctor Portal"
+      coverImage="/images/doctor-portal.jpg"
+      coverQuote={{
+        kanji: '仁',
+        title: 'CLINICAL SANCTUARY',
+        subtitle: 'Dedication to precision, empathy to healing.',
+        badge: 'Physician Console',
+      }}
+    >
+      {section === 'overview' && (
+        <OverviewSection
+          userName={user.full_name}
+          schedule={schedule}
+          patients={patients}
+          onNavigate={setSection}
+          onUpdateStatus={handleUpdateStatus}
+          onOpenPatientFile={setSelectedPatientFile}
+        />
+      )}
+      {section === 'appointments' && (
+        <AppointmentsSection
+          schedule={schedule}
+          setSchedule={setSchedule}
+          onUpdateStatus={handleUpdateStatus}
+        />
+      )}
+      {section === 'patients' && (
+        <PatientsSection
+          patients={patients}
+          setPatients={setPatients}
+          onOpenPatientFile={setSelectedPatientFile}
+        />
+      )}
+      {section === 'consultations' && (
+        <ConsultationsSection
+          consultations={consultations}
+          setConsultations={setConsultations}
+          patients={patients}
+        />
+      )}
       {section === 'profile' && <ProfileSection user={user} />}
+
+      {/* Patient Medical Chart Drawer Modal */}
+      {selectedPatientFile && (
+        <div className="fixed inset-0 z-50 bg-kuro/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-xl p-6 sm:p-7 rounded-2xl bg-sumi border border-charcoal shadow-2xl space-y-5 animate-fadeIn">
+            <div className="flex items-start justify-between border-b border-charcoal/40 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-kuro border border-charcoal flex items-center justify-center text-xl font-serif text-washi">
+                  {selectedPatientFile.name.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl text-washi font-medium">
+                    {selectedPatientFile.name}
+                  </h3>
+                  <p className="text-xs text-stone">
+                    Age {selectedPatientFile.age} · {selectedPatientFile.gender} · Blood: {selectedPatientFile.bloodType}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedPatientFile(null)}
+                className="text-stone hover:text-washi p-1"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-kuro/60 border border-charcoal/30 flex items-center justify-between">
+                <div>
+                  <span className="text-[0.65rem] text-stone tracking-wider uppercase block">Primary Condition</span>
+                  <span className="text-sm text-washi font-medium">{selectedPatientFile.condition}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[0.65rem] text-stone tracking-wider uppercase block">Contact Phone</span>
+                  <span className="text-xs text-mist font-mono">{selectedPatientFile.phone}</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-kuro/60 border border-charcoal/30">
+                <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Allergies & Contraindications</span>
+                <span className="text-xs text-aka font-medium">{selectedPatientFile.allergies}</span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-kuro/60 border border-charcoal/30">
+                <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Consultation Notes on File</span>
+                {consultations.filter((c) => c.patient === selectedPatientFile.name).length > 0 ? (
+                  consultations
+                    .filter((c) => c.patient === selectedPatientFile.name)
+                    .map((c) => (
+                      <div key={c.id} className="pt-2 border-t border-charcoal/20 first:pt-0 first:border-0 text-xs">
+                        <span className="text-stone font-mono">{formatDate(c.date)}: </span>
+                        <span className="text-mist">{c.summary}</span>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-xs text-stone italic">No prior archived consultation notes on this device.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setSelectedPatientFile(null)
+                  setSection('appointments')
+                }}
+                className="flex-1 py-2.5 rounded-lg bg-aka/90 hover:bg-aka text-kuro font-medium text-xs transition-colors"
+              >
+                Schedule Appointment for {selectedPatientFile.name}
+              </button>
+              <button
+                onClick={() => setSelectedPatientFile(null)}
+                className="px-4 py-2.5 rounded-lg border border-charcoal/40 text-stone hover:text-washi text-xs"
+              >
+                Close Chart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }

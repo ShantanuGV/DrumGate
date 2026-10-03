@@ -16,181 +16,276 @@ import {
   Check,
   Save,
   Edit3,
+  Pill,
+  Activity,
+  Download,
+  AlertCircle,
+  Video,
+  ShieldCheck,
+  Search,
+  Filter,
 } from 'lucide-react'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Overview', id: 'overview' },
   { icon: Calendar, label: 'Appointments', id: 'appointments' },
   { icon: FileText, label: 'Medical History', id: 'history' },
-  { icon: User, label: 'Profile', id: 'profile' },
+  { icon: Pill, label: 'Prescriptions', id: 'prescriptions' },
+  { icon: User, label: 'Profile & Health', id: 'profile' },
 ]
 
-/* ─── Mock Data ─── */
+/* ─── Initial Mock Data ─── */
 const initialAppointments = [
-  { id: 1, doctor: 'Dr. Haruki Tanaka', specialty: 'General Physician', date: '2026-10-08', time: '10:30 AM', location: 'Room 204', status: 'confirmed' as const },
-  { id: 2, doctor: 'Dr. Yuki Yamamoto', specialty: 'Dermatologist', date: '2026-10-22', time: '2:00 PM', location: 'Room 107', status: 'confirmed' as const },
-  { id: 3, doctor: 'Dr. Ryo Sato', specialty: 'Cardiologist', date: '2026-11-05', time: '9:00 AM', location: 'Room 312', status: 'pending' as const },
+  { id: 1, doctor: 'Dr. Haruki Tanaka', specialty: 'General Physician', date: '2026-10-08', time: '10:30 AM', location: 'Room 204', mode: 'In-Clinic', status: 'confirmed' as const, note: 'Quarterly general health review' },
+  { id: 2, doctor: 'Dr. Yuki Yamamoto', specialty: 'Dermatologist', date: '2026-10-22', time: '2:00 PM', location: 'Room 107', mode: 'In-Clinic', status: 'confirmed' as const, note: 'Skin assessment follow-up' },
+  { id: 3, doctor: 'Dr. Ryo Sato', specialty: 'Cardiologist', date: '2026-11-05', time: '9:00 AM', location: 'Virtual Telehealth', mode: 'Video Call', status: 'pending' as const, note: 'Cardiovascular check' },
 ]
 
 const initialHistory = [
-  { id: 1, date: '2026-09-28', type: 'Consultation', doctor: 'Dr. Tanaka', note: 'Routine check-up. All vitals normal. Blood pressure 120/80.' },
-  { id: 2, date: '2026-09-12', type: 'Lab Results', doctor: 'Dr. Yamamoto', note: 'Blood panel complete. All values within normal range.' },
-  { id: 3, date: '2026-08-30', type: 'Follow-up', doctor: 'Dr. Tanaka', note: 'Recovery progressing well. Medication adjusted.' },
-  { id: 4, date: '2026-08-15', type: 'Prescription', doctor: 'Dr. Sato', note: 'Renewed prescription for maintenance medication.' },
+  { id: 1, date: '2026-09-28', type: 'Consultation', doctor: 'Dr. Haruki Tanaka', note: 'Routine check-up. All vitals normal. Blood pressure 120/80 mmHg. Advised continued light morning yoga.' },
+  { id: 2, date: '2026-09-12', type: 'Lab Results', doctor: 'Dr. Yuki Yamamoto', note: 'Comprehensive metabolic panel & lipid panel complete. All values within normal optimal range.' },
+  { id: 3, date: '2026-08-30', type: 'Follow-up', doctor: 'Dr. Haruki Tanaka', note: 'Post-seasonal allergy review. Recovery complete. Prescribed maintenance antihistamine as needed.' },
+  { id: 4, date: '2026-08-15', type: 'Prescription', doctor: 'Dr. Ryo Sato', note: 'Renewed cardiovascular maintenance prescription for 90-day duration.' },
+]
+
+const initialPrescriptions = [
+  { id: 1, name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily in the morning', doctor: 'Dr. Haruki Tanaka', refills: 3, status: 'Active' },
+  { id: 2, name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily at bedtime', doctor: 'Dr. Ryo Sato', refills: 2, status: 'Active' },
+  { id: 3, name: 'Cetirizine HCl', dosage: '10mg', frequency: 'As needed for seasonal symptoms', doctor: 'Dr. Yuki Yamamoto', refills: 1, status: 'Active' },
+]
+
+const initialVitals = {
+  bloodPressure: '120/80',
+  heartRate: '72',
+  bloodGlucose: '94',
+  weight: '64.5',
+  oxygenLevel: '99',
+  lastUpdated: 'Today, 8:45 AM',
+}
+
+const availableDoctors = [
+  { name: 'Dr. Haruki Tanaka', specialty: 'General Physician' },
+  { name: 'Dr. Yuki Yamamoto', specialty: 'Dermatologist' },
+  { name: 'Dr. Ryo Sato', specialty: 'Cardiologist' },
+  { name: 'Dr. Mai Kimura', specialty: 'Pediatrician & Family Care' },
 ]
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  try {
+    const d = new Date(dateStr)
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  } catch {
+    return dateStr
+  }
 }
 
-/* ─── Overview ─── */
+/* ─── Overview Section ─── */
 function OverviewSection({
   userName,
   appointments,
   history,
+  vitals,
   onNavigate,
+  onOpenLogVitals,
+  onOpenBookAppointment,
 }: {
   userName: string
   appointments: typeof initialAppointments
   history: typeof initialHistory
+  vitals: typeof initialVitals
   onNavigate: (id: string) => void
+  onOpenLogVitals: () => void
+  onOpenBookAppointment: () => void
 }) {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
   const next = appointments.find((a) => a.status === 'confirmed')
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1200px]">
-      {/* Greeting with portrait image */}
-      <div className="grid lg:grid-cols-[1fr_220px] gap-8 mb-12">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1100px] space-y-10">
+      {/* Greeting Banner */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-charcoal/30">
         <div>
-          <p className="text-stone text-xs tracking-[0.2em] uppercase mb-2">{greeting}</p>
-          <h1 className="font-serif text-shiro text-3xl md:text-4xl leading-tight mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aka/10 border border-aka/30 mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-aka animate-pulse" />
+            <span className="text-[0.65rem] tracking-[0.2em] uppercase text-aka font-mono">
+              Patient Sanctuary
+            </span>
+          </div>
+          <p className="text-stone text-xs tracking-[0.2em] uppercase mb-1">{greeting}</p>
+          <h1 className="font-serif text-shiro text-3xl md:text-4xl leading-tight">
             {userName}
           </h1>
-          <p className="text-stone text-sm italic font-serif mb-8">
-            Your health, gently organized.
+          <p className="text-stone text-sm italic font-serif mt-1">
+            "In every breath, tranquility. In every check-up, peace of mind."
           </p>
-
-          {/* Next appointment card */}
-          {next && (
-            <div className="relative p-6 rounded-xl border border-charcoal/40 bg-gradient-to-br from-sumi/50 to-kuro overflow-hidden group hover:border-aka/20 transition-all duration-500">
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.03]">
-                <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-washi" />
-                  <circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-washi" />
-                </svg>
-              </div>
-
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-2 h-2 rounded-full bg-aka animate-pulse" />
-                <span className="text-aka text-[0.65rem] tracking-[0.15em] uppercase font-medium">
-                  Next appointment
-                </span>
-              </div>
-
-              <h3 className="font-serif text-xl text-shiro mb-1">{next.doctor}</h3>
-              <p className="text-stone text-xs mb-5">{next.specialty}</p>
-
-              <div className="flex flex-wrap gap-x-6 gap-y-2 mb-5">
-                <div className="flex items-center gap-2">
-                  <Calendar size={13} className="text-stone" />
-                  <span className="text-sm text-mist">{formatDate(next.date)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={13} className="text-stone" />
-                  <span className="text-sm text-mist">{next.time}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={13} className="text-stone" />
-                  <span className="text-sm text-mist">{next.location}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => onNavigate('appointments')}
-                className="flex items-center gap-2 text-xs text-aka tracking-wider uppercase hover:gap-3 transition-all duration-300"
-              >
-                View all appointments <ArrowUpRight size={12} />
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Portrait image — full height side element */}
-        <div className="hidden lg:block relative h-full min-h-[320px]">
-          <div className="absolute inset-0 rounded-2xl overflow-hidden">
-            <img
-              src="/images/patient-portal.jpg"
-              alt=""
-              className="w-full h-full object-cover object-top opacity-40"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-kuro via-kuro/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-kuro/40 to-transparent" />
+        {/* Quick Action Buttons */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={onOpenBookAppointment}
+            className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg shadow-sm transition-all hover:shadow-aka/20"
+          >
+            <Plus size={14} /> Book Appointment
+          </button>
+          <button
+            onClick={onOpenLogVitals}
+            className="flex items-center gap-2 text-xs font-medium text-washi bg-sumi/40 hover:bg-sumi/70 border border-charcoal/50 hover:border-charcoal px-4 py-2.5 rounded-lg transition-all"
+          >
+            <Activity size={14} className="text-aka" /> Log Vitals
+          </button>
+        </div>
+      </div>
+
+      {/* Vitals Summary Strip */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Activity size={14} className="text-aka" />
+            <h2 className="text-xs tracking-[0.18em] uppercase text-stone font-mono">
+              Current Health Vitals
+            </h2>
           </div>
-          <div className="relative h-full flex flex-col justify-end p-5">
-            <Heart size={16} className="text-aka mb-2" />
-            <p className="text-[0.65rem] text-mist/70 italic font-serif leading-relaxed">
-              Where care<br />finds its way.
-            </p>
+          <span className="text-[0.65rem] text-stone/70">Updated: {vitals.lastUpdated}</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-4 rounded-xl border border-charcoal/30 bg-sumi/20 hover:border-aka/30 transition-colors">
+            <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Blood Pressure</span>
+            <span className="text-xl md:text-2xl font-serif text-washi font-medium">{vitals.bloodPressure}</span>
+            <span className="text-[0.6rem] text-emerald-400 block mt-1">Optimal · mmHg</span>
+          </div>
+          <div className="p-4 rounded-xl border border-charcoal/30 bg-sumi/20 hover:border-aka/30 transition-colors">
+            <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Resting Heart Rate</span>
+            <span className="text-xl md:text-2xl font-serif text-washi font-medium">{vitals.heartRate} <span className="text-xs font-sans text-stone">bpm</span></span>
+            <span className="text-[0.6rem] text-emerald-400 block mt-1">Normal rhythm</span>
+          </div>
+          <div className="p-4 rounded-xl border border-charcoal/30 bg-sumi/20 hover:border-aka/30 transition-colors">
+            <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Blood Glucose</span>
+            <span className="text-xl md:text-2xl font-serif text-washi font-medium">{vitals.bloodGlucose} <span className="text-xs font-sans text-stone">mg/dL</span></span>
+            <span className="text-[0.6rem] text-emerald-400 block mt-1">Fasting normal</span>
+          </div>
+          <div className="p-4 rounded-xl border border-charcoal/30 bg-sumi/20 hover:border-aka/30 transition-colors">
+            <span className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Weight / SpO2</span>
+            <span className="text-xl md:text-2xl font-serif text-washi font-medium">{vitals.weight} <span className="text-xs font-sans text-stone">kg</span></span>
+            <span className="text-[0.6rem] text-mist/70 block mt-1">Oxygen: {vitals.oxygenLevel}%</span>
           </div>
         </div>
       </div>
 
-      {/* Two columns */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Upcoming */}
-        <div>
+      {/* Next Appointment Feature Card */}
+      {next && (
+        <div className="relative p-6 sm:p-7 rounded-2xl border border-charcoal/40 bg-gradient-to-br from-sumi/60 via-sumi/30 to-kuro overflow-hidden shadow-lg group hover:border-aka/40 transition-all duration-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-aka animate-ping" />
+              <span className="text-aka text-xs tracking-[0.18em] uppercase font-mono font-medium">
+                Confirmed Upcoming Visit
+              </span>
+            </div>
+            <span className="text-xs text-mist/80 bg-kuro/60 border border-charcoal/40 px-3 py-1 rounded-full flex items-center gap-1.5 w-fit">
+              {next.mode === 'Video Call' ? <Video size={12} className="text-aka" /> : <MapPin size={12} className="text-aka" />}
+              {next.location}
+            </span>
+          </div>
+
+          <div className="grid md:grid-cols-[1.5fr_1fr] gap-6 items-center">
+            <div>
+              <h3 className="font-serif text-2xl text-shiro mb-1">{next.doctor}</h3>
+              <p className="text-stone text-xs mb-3">{next.specialty} · {next.note}</p>
+              <div className="flex flex-wrap items-center gap-5 text-sm text-mist">
+                <div className="flex items-center gap-2">
+                  <Calendar size={14} className="text-aka" />
+                  <span>{formatDate(next.date)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock size={14} className="text-aka" />
+                  <span>{next.time}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-row md:flex-col items-start md:items-end justify-between md:justify-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-charcoal/30">
+              <button
+                onClick={() => onNavigate('appointments')}
+                className="text-xs text-aka hover:text-washi flex items-center gap-1.5 transition-colors font-medium"
+              >
+                Manage Schedule <ArrowUpRight size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Two columns: Upcoming visits & Recent Health Records */}
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Appointments Preview */}
+        <div className="p-6 rounded-2xl border border-charcoal/30 bg-sumi/15">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xs tracking-[0.15em] uppercase text-stone">Upcoming</h2>
+            <div className="flex items-center gap-2">
+              <Calendar size={15} className="text-aka" />
+              <h2 className="text-xs tracking-[0.15em] uppercase text-stone font-mono">Scheduled Visits</h2>
+            </div>
             <button
               onClick={() => onNavigate('appointments')}
               className="text-[0.65rem] text-aka tracking-wider uppercase flex items-center gap-1 hover:gap-2 transition-all"
             >
-              See all <ChevronRight size={10} />
+              All ({appointments.length}) <ChevronRight size={11} />
             </button>
           </div>
+
           <div className="space-y-3">
-            {appointments.slice(0, 3).map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-lg border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 hover:bg-sumi/25 transition-all duration-300 cursor-pointer group">
-                <div className="w-12 h-12 rounded-lg bg-kuro border border-charcoal/40 flex flex-col items-center justify-center flex-shrink-0">
-                  <span className="text-[0.6rem] text-stone uppercase leading-none">{formatDate(apt.date).split(' ')[0]}</span>
-                  <span className="text-sm text-washi font-medium">{formatDate(apt.date).split(' ')[1]}</span>
+            {appointments.map((apt) => (
+              <div
+                key={apt.id}
+                className="flex items-center gap-4 p-3.5 rounded-xl border border-charcoal/20 bg-kuro/40 hover:border-charcoal/60 transition-all"
+              >
+                <div className="w-12 h-12 rounded-lg bg-sumi border border-charcoal/40 flex flex-col items-center justify-center flex-shrink-0">
+                  <span className="text-[0.6rem] text-stone uppercase">{formatDate(apt.date).split(' ')[0]}</span>
+                  <span className="text-sm text-washi font-medium font-serif">{formatDate(apt.date).split(' ')[1]}</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-washi truncate">{apt.doctor}</p>
+                  <p className="text-sm text-washi truncate font-medium">{apt.doctor}</p>
                   <p className="text-xs text-stone">{apt.specialty} · {apt.time}</p>
                 </div>
-                <ChevronRight size={14} className="text-charcoal group-hover:text-stone transition-colors flex-shrink-0" />
+                <span className={`text-[0.6rem] px-2 py-0.5 rounded uppercase tracking-wider ${
+                  apt.status === 'confirmed' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
+                }`}>
+                  {apt.status}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recent history */}
-        <div>
+        {/* History Preview */}
+        <div className="p-6 rounded-2xl border border-charcoal/30 bg-sumi/15">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xs tracking-[0.15em] uppercase text-stone">Recent History</h2>
+            <div className="flex items-center gap-2">
+              <FileText size={15} className="text-aka" />
+              <h2 className="text-xs tracking-[0.15em] uppercase text-stone font-mono">Recent Records</h2>
+            </div>
             <button
               onClick={() => onNavigate('history')}
               className="text-[0.65rem] text-aka tracking-wider uppercase flex items-center gap-1 hover:gap-2 transition-all"
             >
-              Full history <ChevronRight size={10} />
+              Full History <ChevronRight size={11} />
             </button>
           </div>
+
           <div className="space-y-3">
-            {history.slice(0, 3).map((entry) => (
-              <div key={entry.id} className="p-4 rounded-lg border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-aka/60" />
-                    <span className="text-xs text-washi font-medium">{entry.type}</span>
-                  </div>
-                  <span className="text-[0.65rem] text-stone">{formatDate(entry.date)}</span>
+            {history.slice(0, 3).map((item) => (
+              <div
+                key={item.id}
+                className="p-3.5 rounded-xl border border-charcoal/20 bg-kuro/40 hover:border-charcoal/60 transition-all"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-washi font-medium">{item.type}</span>
+                  <span className="text-[0.65rem] text-stone">{formatDate(item.date)}</span>
                 </div>
-                <p className="text-xs text-stone leading-relaxed">{entry.note}</p>
-                <p className="text-[0.6rem] text-stone/60 mt-2">{entry.doctor}</p>
+                <p className="text-xs text-stone line-clamp-2 leading-relaxed">{item.note}</p>
+                <p className="text-[0.6rem] text-mist/60 mt-2 font-mono">{item.doctor}</p>
               </div>
             ))}
           </div>
@@ -200,150 +295,305 @@ function OverviewSection({
   )
 }
 
-/* ─── Appointments ─── */
+/* ─── Appointments Section ─── */
 function AppointmentsSection({
   appointments,
   setAppointments,
+  showForm,
+  setShowForm,
 }: {
   appointments: typeof initialAppointments
   setAppointments: React.Dispatch<React.SetStateAction<typeof initialAppointments>>
+  showForm: boolean
+  setShowForm: (show: boolean) => void
 }) {
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ doctor: '', specialty: '', date: '', time: '', location: '' })
+  const [filter, setFilter] = useState<'all' | 'confirmed' | 'pending'>('all')
+  const [search, setSearch] = useState('')
+  const [form, setForm] = useState({
+    doctor: availableDoctors[0].name,
+    specialty: availableDoctors[0].specialty,
+    date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+    time: '10:00 AM',
+    location: 'Room 204 (In-Clinic)',
+    mode: 'In-Clinic',
+    note: '',
+  })
+  const [feedback, setFeedback] = useState('')
 
-  const handleAdd = () => {
-    if (!form.doctor || !form.date || !form.time) return
+  const handleDoctorChange = (docName: string) => {
+    const found = availableDoctors.find((d) => d.name === docName)
+    setForm({
+      ...form,
+      doctor: docName,
+      specialty: found ? found.specialty : 'General Medicine',
+    })
+  }
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.doctor || !form.date) return
     const newApt = {
       id: Date.now(),
       doctor: form.doctor,
-      specialty: form.specialty || 'General',
+      specialty: form.specialty,
       date: form.date,
       time: form.time,
-      location: form.location || 'TBD',
-      status: 'pending' as const,
+      location: form.location,
+      mode: form.mode,
+      status: 'confirmed' as const,
+      note: form.note || 'Scheduled patient consultation',
     }
-    setAppointments((prev) => [...prev, newApt])
-    setForm({ doctor: '', specialty: '', date: '', time: '', location: '' })
+    setAppointments((prev) => [newApt, ...prev])
     setShowForm(false)
+    setForm({
+      doctor: availableDoctors[0].name,
+      specialty: availableDoctors[0].specialty,
+      date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+      time: '10:00 AM',
+      location: 'Room 204 (In-Clinic)',
+      mode: 'In-Clinic',
+      note: '',
+    })
+    setFeedback('Appointment scheduled successfully!')
+    setTimeout(() => setFeedback(''), 3000)
   }
 
   const handleCancel = (id: number) => {
     setAppointments((prev) => prev.filter((a) => a.id !== id))
+    setFeedback('Appointment cancelled.')
+    setTimeout(() => setFeedback(''), 2500)
   }
 
+  const filtered = appointments.filter((a) => {
+    const matchesFilter = filter === 'all' || a.status === filter
+    const matchesSearch =
+      a.doctor.toLowerCase().includes(search.toLowerCase()) ||
+      a.specialty.toLowerCase().includes(search.toLowerCase())
+    return matchesFilter && matchesSearch
+  })
+
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px]">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px] space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl text-shiro mb-1">Appointments</h1>
-          <p className="text-stone text-sm">Manage your upcoming and past visits.</p>
+          <h1 className="font-serif text-3xl text-shiro mb-1">Appointments</h1>
+          <p className="text-stone text-sm">Schedule, manage, and review your doctor visits.</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-4 py-2.5 rounded transition-colors"
+          className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg transition-colors w-fit"
         >
           {showForm ? <X size={14} /> : <Plus size={14} />}
-          {showForm ? 'Cancel' : 'Book New'}
+          {showForm ? 'Close Form' : 'Book New Visit'}
         </button>
       </div>
 
-      {/* Add appointment form */}
-      {showForm && (
-        <div className="mb-8 p-6 rounded-xl border border-aka/20 bg-sumi/20">
-          <h3 className="text-sm text-washi font-medium mb-4">Book New Appointment</h3>
-          <div className="grid sm:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Doctor Name *</label>
-              <input
-                type="text"
-                value={form.doctor}
-                onChange={(e) => setForm({ ...form, doctor: e.target.value })}
-                placeholder="Dr. Name"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Specialty</label>
-              <input
-                type="text"
-                value={form.specialty}
-                onChange={(e) => setForm({ ...form, specialty: e.target.value })}
-                placeholder="e.g. Cardiologist"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Date *</label>
-              <input
-                type="date"
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Time *</label>
-              <input
-                type="time"
-                value={form.time}
-                onChange={(e) => setForm({ ...form, time: e.target.value })}
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors"
-              />
-            </div>
-          </div>
-          <div className="mb-4">
-            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Location</label>
-            <input
-              type="text"
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              placeholder="Room number or address"
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors"
-            />
-          </div>
-          <button
-            onClick={handleAdd}
-            disabled={!form.doctor || !form.date || !form.time}
-            className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <Check size={14} /> Confirm Booking
-          </button>
+      {feedback && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-400 animate-fadeIn">
+          <Check size={14} /> {feedback}
         </div>
       )}
 
-      {/* List */}
-      <div className="space-y-3">
-        {appointments.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-charcoal/30 rounded-xl">
-            <Calendar size={28} className="text-charcoal mx-auto mb-3" />
-            <p className="text-stone text-sm mb-2">No appointments yet.</p>
-            <button onClick={() => setShowForm(true)} className="text-xs text-aka tracking-wider uppercase">
-              Book your first appointment
+      {/* Booking Form Modal/Drawer */}
+      {showForm && (
+        <div className="p-6 sm:p-7 rounded-2xl border border-aka/30 bg-sumi/30 shadow-xl space-y-5 animate-fadeIn">
+          <div className="flex items-center justify-between border-b border-charcoal/30 pb-3">
+            <h3 className="font-serif text-lg text-washi">Book Clinical Consultation</h3>
+            <span className="text-[0.65rem] text-aka uppercase tracking-widest font-mono">Immediate Confirmation</span>
+          </div>
+
+          <form onSubmit={handleAdd} className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Select Doctor *</label>
+                <select
+                  value={form.doctor}
+                  onChange={(e) => handleDoctorChange(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 transition-colors"
+                >
+                  {availableDoctors.map((doc) => (
+                    <option key={doc.name} value={doc.name}>
+                      {doc.name} ({doc.specialty})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Specialty / Department</label>
+                <input
+                  type="text"
+                  value={form.specialty}
+                  disabled
+                  className="w-full px-3.5 py-2.5 bg-kuro/60 border border-charcoal/40 rounded-lg text-sm text-stone cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Date *</label>
+                <input
+                  type="date"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  required
+                  className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Time Slot *</label>
+                <select
+                  value={form.time}
+                  onChange={(e) => setForm({ ...form, time: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 transition-colors"
+                >
+                  <option value="9:00 AM">9:00 AM — Morning</option>
+                  <option value="10:30 AM">10:30 AM — Morning</option>
+                  <option value="11:45 AM">11:45 AM — Late Morning</option>
+                  <option value="2:00 PM">2:00 PM — Afternoon</option>
+                  <option value="3:30 PM">3:30 PM — Afternoon</option>
+                  <option value="4:45 PM">4:45 PM — Evening</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Consultation Mode</label>
+                <select
+                  value={form.mode}
+                  onChange={(e) => {
+                    const mode = e.target.value
+                    setForm({
+                      ...form,
+                      mode,
+                      location: mode === 'Video Call' ? 'Virtual Telehealth (Encrypted Link)' : 'Room 204 (In-Clinic)',
+                    })
+                  }}
+                  className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 transition-colors"
+                >
+                  <option value="In-Clinic">In-Clinic (Room Visit)</option>
+                  <option value="Video Call">Telehealth Video Call</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Location / Room</label>
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Reason for Visit / Symptoms</label>
+              <textarea
+                value={form.note}
+                onChange={(e) => setForm({ ...form, note: e.target.value })}
+                placeholder="Briefly describe your symptoms or reason for visit..."
+                rows={2}
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 transition-colors resize-none placeholder:text-stone/40"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="submit"
+                className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
+              >
+                <Check size={14} /> Confirm Reservation
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="text-xs text-stone hover:text-washi px-4 py-2.5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-1 bg-sumi/30 p-1 rounded-lg border border-charcoal/30 w-fit">
+          {(['all', 'confirmed', 'pending'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              className={`px-3 py-1.5 rounded text-xs capitalize transition-colors ${
+                filter === tab ? 'bg-aka/20 text-washi font-medium border border-aka/30' : 'text-stone hover:text-washi'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative min-w-[220px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search doctor or specialty..."
+            className="w-full pl-9 pr-3 py-2 bg-sumi/20 border border-charcoal/40 rounded-lg text-xs text-washi placeholder:text-stone/50 focus:outline-none focus:border-aka/40"
+          />
+        </div>
+      </div>
+
+      {/* Appointments List */}
+      <div className="space-y-4">
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 border border-dashed border-charcoal/40 rounded-2xl">
+            <Calendar size={32} className="text-charcoal mx-auto mb-3" />
+            <p className="text-stone text-sm mb-2">No matching appointments found.</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="text-xs text-aka hover:underline uppercase tracking-wider"
+            >
+              Book an appointment
             </button>
           </div>
         ) : (
-          appointments.map((apt) => (
-            <div key={apt.id} className="flex items-center gap-5 p-5 rounded-xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-xl bg-kuro border border-charcoal/40 flex flex-col items-center justify-center flex-shrink-0">
-                <span className="text-[0.6rem] text-stone uppercase">{formatDate(apt.date).split(' ')[0]}</span>
-                <span className="text-lg text-washi font-serif">{formatDate(apt.date).split(' ')[1]}</span>
+          filtered.map((apt) => (
+            <div
+              key={apt.id}
+              className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20 hover:border-charcoal/60 transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-kuro border border-charcoal/50 flex flex-col items-center justify-center flex-shrink-0">
+                  <span className="text-[0.65rem] text-stone uppercase">{formatDate(apt.date).split(' ')[0]}</span>
+                  <span className="text-xl text-washi font-serif font-medium">{formatDate(apt.date).split(' ')[1]}</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-base text-washi font-medium">{apt.doctor}</h3>
+                    <span className={`text-[0.6rem] px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                      apt.status === 'confirmed' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
+                    }`}>
+                      {apt.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone mb-1">{apt.specialty} · {apt.note}</p>
+                  <p className="text-xs text-mist/70 flex items-center gap-2">
+                    <Clock size={12} className="text-aka" /> {apt.time}
+                    <span className="text-stone/40">·</span>
+                    <MapPin size={12} className="text-aka" /> {apt.location}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-washi font-medium">{apt.doctor}</p>
-                <p className="text-xs text-stone">{apt.specialty} · {apt.time} · {apt.location}</p>
+
+              <div className="flex items-center gap-3 self-end sm:self-center">
+                <button
+                  onClick={() => handleCancel(apt.id)}
+                  className="text-xs text-stone hover:text-aka border border-charcoal/40 hover:border-aka/40 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Cancel Visit
+                </button>
               </div>
-              <span className={`text-[0.6rem] px-2.5 py-1 rounded-full uppercase tracking-wider flex-shrink-0 ${
-                apt.status === 'confirmed' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
-              }`}>
-                {apt.status}
-              </span>
-              <button
-                onClick={() => handleCancel(apt.id)}
-                className="text-stone hover:text-aka transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
-                title="Cancel appointment"
-              >
-                <X size={16} />
-              </button>
             </div>
           ))
         )}
@@ -352,7 +602,7 @@ function AppointmentsSection({
   )
 }
 
-/* ─── Medical History ─── */
+/* ─── Medical History Section ─── */
 function HistorySection({
   history,
   setHistory,
@@ -361,227 +611,510 @@ function HistorySection({
   setHistory: React.Dispatch<React.SetStateAction<typeof initialHistory>>
 }) {
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ type: '', doctor: '', note: '', date: '' })
+  const [filter, setFilter] = useState('All')
+  const [search, setSearch] = useState('')
+  const [form, setForm] = useState({
+    type: 'Consultation',
+    doctor: 'Dr. Haruki Tanaka',
+    note: '',
+    date: new Date().toISOString().split('T')[0],
+  })
 
-  const handleAdd = () => {
-    if (!form.type || !form.note) return
-    setHistory((prev) => [
-      { id: Date.now(), date: form.date || new Date().toISOString().split('T')[0], type: form.type, doctor: form.doctor || 'Self-reported', note: form.note },
-      ...prev,
-    ])
-    setForm({ type: '', doctor: '', note: '', date: '' })
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.note) return
+    const newRecord = {
+      id: Date.now(),
+      type: form.type,
+      doctor: form.doctor,
+      note: form.note,
+      date: form.date,
+    }
+    setHistory((prev) => [newRecord, ...prev])
+    setForm({
+      type: 'Consultation',
+      doctor: 'Dr. Haruki Tanaka',
+      note: '',
+      date: new Date().toISOString().split('T')[0],
+    })
     setShowForm(false)
   }
 
   const handleDelete = (id: number) => {
-    setHistory((prev) => prev.filter((h) => h.id !== id))
+    setHistory((prev) => prev.filter((item) => item.id !== id))
   }
 
+  const categories = ['All', 'Consultation', 'Lab Results', 'Follow-up', 'Prescription']
+
+  const filtered = history.filter((item) => {
+    const matchesFilter = filter === 'All' || item.type === filter
+    const matchesSearch =
+      item.note.toLowerCase().includes(search.toLowerCase()) ||
+      item.doctor.toLowerCase().includes(search.toLowerCase()) ||
+      item.type.toLowerCase().includes(search.toLowerCase())
+    return matchesFilter && matchesSearch
+  })
+
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px]">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px] space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl text-shiro mb-1">Medical History</h1>
-          <p className="text-stone text-sm">Your complete health records, securely stored.</p>
+          <h1 className="font-serif text-3xl text-shiro mb-1">Medical Records & History</h1>
+          <p className="text-stone text-sm">Official consultation logs, diagnostic reports, and medical notes.</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-4 py-2.5 rounded transition-colors"
+          className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-4 py-2.5 rounded-lg transition-colors w-fit"
         >
           {showForm ? <X size={14} /> : <Plus size={14} />}
-          {showForm ? 'Cancel' : 'Add Record'}
+          {showForm ? 'Close Form' : 'Log New Record'}
         </button>
       </div>
 
       {showForm && (
-        <div className="mb-8 p-6 rounded-xl border border-aka/20 bg-sumi/20">
-          <h3 className="text-sm text-washi font-medium mb-4">Add Record</h3>
-          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+        <form onSubmit={handleAdd} className="p-6 rounded-2xl border border-aka/30 bg-sumi/30 space-y-4 shadow-xl animate-fadeIn">
+          <h3 className="font-serif text-lg text-washi">Add Personal Health Record / Doctor Note</h3>
+          <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Type *</label>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Record Type</label>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors"
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
               >
-                <option value="">Select type</option>
                 <option value="Consultation">Consultation</option>
                 <option value="Lab Results">Lab Results</option>
                 <option value="Follow-up">Follow-up</option>
                 <option value="Prescription">Prescription</option>
-                <option value="Surgery">Surgery</option>
-                <option value="Other">Other</option>
+                <option value="Vaccination">Vaccination</option>
               </select>
             </div>
             <div>
-              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Doctor</label>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Doctor / Clinic</label>
               <input
                 type="text"
                 value={form.doctor}
                 onChange={(e) => setForm({ ...form, doctor: e.target.value })}
-                placeholder="Dr. Name"
-                className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors"
+                placeholder="Doctor or Clinic name"
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
+              />
+            </div>
+            <div>
+              <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Date</label>
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60"
               />
             </div>
           </div>
-          <div className="mb-4">
-            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Date</label>
-            <input
-              type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Notes *</label>
+          <div>
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1.5">Clinical Notes / Summary *</label>
             <textarea
               value={form.note}
               onChange={(e) => setForm({ ...form, note: e.target.value })}
-              placeholder="Describe the record..."
+              placeholder="Record details, physician recommendations, lab values..."
               rows={3}
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi placeholder:text-charcoal focus:outline-none focus:border-aka/40 transition-colors resize-none"
+              required
+              className="w-full px-3.5 py-2.5 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi focus:outline-none focus:border-aka/60 resize-none"
             />
           </div>
           <button
-            onClick={handleAdd}
-            disabled={!form.type || !form.note}
-            className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            type="submit"
+            className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
           >
-            <Check size={14} /> Add Record
+            <Check size={14} /> Save Record
           </button>
-        </div>
+        </form>
       )}
 
+      {/* Filter and Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-1 bg-sumi/30 p-1 rounded-lg border border-charcoal/30">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={`px-3 py-1.5 rounded text-xs transition-colors ${
+                filter === cat ? 'bg-aka/20 text-washi font-medium border border-aka/30' : 'text-stone hover:text-washi'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative min-w-[200px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search records..."
+            className="w-full pl-9 pr-3 py-2 bg-sumi/20 border border-charcoal/40 rounded-lg text-xs text-washi placeholder:text-stone/50 focus:outline-none focus:border-aka/40"
+          />
+        </div>
+      </div>
+
       <div className="space-y-4">
-        {history.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-charcoal/30 rounded-xl">
-            <FileText size={28} className="text-charcoal mx-auto mb-3" />
-            <p className="text-stone text-sm">No records yet.</p>
-          </div>
-        ) : (
-          history.map((entry) => (
-            <div key={entry.id} className="p-5 rounded-xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/50 transition-all duration-300 group">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-sm text-washi font-medium">{entry.type}</h3>
-                  <p className="text-xs text-stone">{entry.doctor} · {formatDate(entry.date)}</p>
-                </div>
-                <button
-                  onClick={() => handleDelete(entry.id)}
-                  className="text-charcoal hover:text-aka transition-colors opacity-0 group-hover:opacity-100"
-                  title="Remove record"
-                >
-                  <X size={14} />
-                </button>
+        {filtered.map((item) => (
+          <div
+            key={item.id}
+            className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/15 hover:border-charcoal/60 transition-all group"
+          >
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-aka" />
+                <span className="text-sm text-washi font-medium">{item.type}</span>
+                <span className="text-xs text-stone/50">·</span>
+                <span className="text-xs text-stone">{formatDate(item.date)}</span>
               </div>
-              <p className="text-sm text-mist leading-relaxed">{entry.note}</p>
+              <button
+                onClick={() => handleDelete(item.id)}
+                className="text-stone hover:text-aka transition-colors opacity-0 group-hover:opacity-100 p-1"
+                title="Remove Record"
+              >
+                <X size={14} />
+              </button>
             </div>
-          ))
-        )}
+            <p className="text-sm text-mist/90 leading-relaxed">{item.note}</p>
+            <div className="mt-3 pt-3 border-t border-charcoal/20 flex items-center justify-between text-[0.65rem] text-stone font-mono">
+              <span>Physician: {item.doctor}</span>
+              <span className="text-emerald-400">Verified Health Record</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ─── Profile ─── */
-function ProfileSection({ user }: { user: { full_name: string; email: string; role: string } }) {
-  const [editing, setEditing] = useState(false)
-  const [name, setName] = useState(user.full_name)
-  const [saved, setSaved] = useState(false)
+/* ─── Prescriptions Section ─── */
+function PrescriptionsSection({
+  prescriptions,
+  setPrescriptions,
+}: {
+  prescriptions: typeof initialPrescriptions
+  setPrescriptions: React.Dispatch<React.SetStateAction<typeof initialPrescriptions>>
+}) {
+  const [feedback, setFeedback] = useState('')
 
-  const handleSave = () => {
-    setEditing(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  const handleRefill = (id: number) => {
+    setPrescriptions((prev) =>
+      prev.map((p) => {
+        if (p.id === id) {
+          const newRefills = Math.max(0, p.refills - 1)
+          return {
+            ...p,
+            refills: newRefills,
+            status: newRefills === 0 ? 'Refill Requested' : p.status,
+          }
+        }
+        return p
+      })
+    )
+    setFeedback('Refill request dispatched to clinic pharmacy!')
+    setTimeout(() => setFeedback(''), 3000)
   }
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-[600px]">
-      <h1 className="font-serif text-2xl text-shiro mb-8">Profile</h1>
-
-      <div className="flex items-center gap-5 mb-10">
-        <div className="w-16 h-16 rounded-full bg-sumi border border-charcoal flex items-center justify-center">
-          <span className="text-washi text-xl font-serif">{name.charAt(0)}</span>
-        </div>
-        <div>
-          <h2 className="text-lg text-washi font-medium">{name}</h2>
-          <p className="text-xs text-stone">{user.email}</p>
-          <span className="inline-block mt-1 text-[0.6rem] text-aka tracking-wider uppercase border border-aka/30 px-2 py-0.5 rounded">
-            {user.role}
-          </span>
-        </div>
+    <div className="p-6 md:p-10 lg:p-12 max-w-[1000px] space-y-8">
+      <div>
+        <h1 className="font-serif text-3xl text-shiro mb-1">Active Prescriptions & Pharmacy</h1>
+        <p className="text-stone text-sm">View currently prescribed medications and request automated refills.</p>
       </div>
 
-      {saved && (
-        <div className="mb-6 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-          <Check size={14} className="text-emerald-400" />
-          <span className="text-sm text-emerald-400">Profile saved successfully.</span>
+      {feedback && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-400 animate-fadeIn">
+          <Check size={14} /> {feedback}
         </div>
       )}
 
-      <div className="space-y-6">
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Full Name</label>
-          {editing ? (
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 bg-kuro border border-charcoal/50 rounded text-sm text-washi focus:outline-none focus:border-aka/40 transition-colors"
-            />
-          ) : (
-            <p className="text-sm text-washi">{name}</p>
-          )}
-        </div>
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Email</label>
-          <p className="text-sm text-washi">{user.email}</p>
-        </div>
-        <div className="border-b border-charcoal/20 pb-5">
-          <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-2">Role</label>
-          <p className="text-sm text-washi capitalize">{user.role}</p>
-          <p className="text-[0.6rem] text-stone/60 mt-1">Assigned automatically from your account data.</p>
-        </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {prescriptions.map((p) => (
+          <div
+            key={p.id}
+            className="p-5 rounded-2xl border border-charcoal/30 bg-sumi/20 hover:border-aka/40 transition-all flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-kuro border border-charcoal/50 flex items-center justify-center">
+                  <Pill size={16} className="text-aka" />
+                </div>
+                <span className={`text-[0.6rem] px-2 py-0.5 rounded uppercase tracking-wider font-mono ${
+                  p.refills > 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
+                }`}>
+                  {p.refills} refills left
+                </span>
+              </div>
+              <h3 className="font-serif text-lg text-washi mb-1">{p.name}</h3>
+              <p className="text-xs text-stone font-mono mb-2">{p.dosage}</p>
+              <p className="text-xs text-mist/80 mb-4">{p.frequency}</p>
+            </div>
+
+            <div className="pt-4 border-t border-charcoal/30 flex items-center justify-between">
+              <span className="text-[0.65rem] text-stone">{p.doctor}</span>
+              <button
+                onClick={() => handleRefill(p.id)}
+                disabled={p.refills === 0}
+                className="text-xs font-medium text-kuro bg-aka/80 hover:bg-aka disabled:opacity-40 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
+              >
+                {p.refills > 0 ? 'Request Refill' : 'Renewal Pending'}
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="mt-8">
-        {editing ? (
-          <div className="flex gap-3">
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 text-xs text-kuro bg-aka/80 hover:bg-aka px-5 py-2.5 rounded transition-colors"
-            >
-              <Save size={14} /> Save Changes
-            </button>
-            <button
-              onClick={() => { setEditing(false); setName(user.full_name) }}
-              className="text-xs text-stone hover:text-washi px-4 py-2.5 rounded border border-charcoal/40 hover:border-charcoal transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setEditing(true)}
-            className="flex items-center gap-2 text-xs text-stone hover:text-washi px-4 py-2.5 rounded border border-charcoal/40 hover:border-charcoal transition-colors"
-          >
-            <Edit3 size={14} /> Edit Profile
-          </button>
-        )}
+      <div className="p-5 rounded-2xl border border-charcoal/30 bg-kuro/60 flex items-start gap-4">
+        <ShieldCheck size={20} className="text-aka flex-shrink-0 mt-0.5" />
+        <div className="text-xs text-stone leading-relaxed">
+          <span className="text-washi font-medium block mb-1">Direct Pharmacy Integration</span>
+          All prescriptions issued via DrumGate are digitally signed and transmitted directly to your registered pharmacy in compliance with Japanese & International e-Prescription standards.
+        </div>
       </div>
     </div>
   )
 }
 
-/* ─── Main ─── */
+/* ─── Profile & Health Data Section ─── */
+function ProfileSection({
+  user,
+  vitals,
+}: {
+  user: { full_name: string; email: string; role: string }
+  vitals: typeof initialVitals
+}) {
+  const [editing, setEditing] = useState(false)
+  const [profile, setProfile] = useState({
+    name: user.full_name,
+    phone: '+81 (03) 5555-0192',
+    dob: '1992-06-14',
+    bloodType: 'A Positive (A+)',
+    allergies: 'Penicillin, Seasonal Pollen',
+    emergencyContact: 'Kenji Suzuki (Spouse) · +81 90-1234-5678',
+  })
+  const [saved, setSaved] = useState(false)
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    setEditing(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  const exportRecords = () => {
+    const data = {
+      patient: profile.name,
+      email: user.email,
+      bloodType: profile.bloodType,
+      allergies: profile.allergies,
+      vitals,
+      exportTimestamp: new Date().toISOString(),
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `DrumGate-HealthRecord-${profile.name.replace(/\s+/g, '_')}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  return (
+    <div className="p-6 md:p-10 lg:p-12 max-w-[800px] space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-3xl text-shiro mb-1">Personal Health Profile</h1>
+          <p className="text-stone text-sm">Confidential patient demographics and medical baseline.</p>
+        </div>
+        <button
+          onClick={exportRecords}
+          className="flex items-center gap-2 text-xs text-stone hover:text-washi border border-charcoal/40 hover:border-charcoal px-3.5 py-2 rounded-lg transition-colors"
+        >
+          <Download size={14} /> Export Summary
+        </button>
+      </div>
+
+      {saved && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-400 animate-fadeIn">
+          <Check size={14} /> Health profile saved successfully.
+        </div>
+      )}
+
+      {/* User Header */}
+      <div className="flex items-center gap-5 p-5 rounded-2xl border border-charcoal/30 bg-sumi/20">
+        <div className="w-16 h-16 rounded-full bg-sumi border border-charcoal flex items-center justify-center flex-shrink-0">
+          <span className="text-washi text-2xl font-serif">{profile.name.charAt(0)}</span>
+        </div>
+        <div>
+          <h2 className="text-xl text-washi font-medium">{profile.name}</h2>
+          <p className="text-xs text-stone">{user.email}</p>
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="text-[0.6rem] text-aka tracking-wider uppercase border border-aka/30 px-2 py-0.5 rounded">
+              Verified Patient
+            </span>
+            <span className="text-[0.6rem] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+              Medical ID: DG-8924
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Form */}
+      <form onSubmit={handleSave} className="space-y-5">
+        <div className="grid sm:grid-cols-2 gap-5">
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Full Legal Name</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.name}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Email Address</label>
+            <p className="text-sm text-washi">{user.email}</p>
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Contact Phone</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.phone}
+                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.phone}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Blood Type</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.bloodType}
+                onChange={(e) => setProfile({ ...profile, bloodType: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.bloodType}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10 sm:col-span-2">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Known Allergies</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.allergies}
+                onChange={(e) => setProfile({ ...profile, allergies: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.allergies}</p>
+            )}
+          </div>
+
+          <div className="p-4 rounded-xl border border-charcoal/20 bg-sumi/10 sm:col-span-2">
+            <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Emergency Contact</label>
+            {editing ? (
+              <input
+                type="text"
+                value={profile.emergencyContact}
+                onChange={(e) => setProfile({ ...profile, emergencyContact: e.target.value })}
+                className="w-full px-3 py-1.5 bg-kuro border border-charcoal/60 rounded text-sm text-washi"
+              />
+            ) : (
+              <p className="text-sm text-washi">{profile.emergencyContact}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-2">
+          {editing ? (
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="flex items-center gap-2 text-xs font-medium text-kuro bg-aka/90 hover:bg-aka px-5 py-2.5 rounded-lg transition-colors"
+              >
+                <Save size={14} /> Save Profile
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="text-xs text-stone hover:text-washi px-4 py-2.5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-2 text-xs text-washi bg-sumi/40 hover:bg-sumi/70 border border-charcoal/40 px-4 py-2.5 rounded-lg transition-colors"
+            >
+              <Edit3 size={14} /> Edit Health Information
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  )
+}
+
+/* ─── Main Patient Dashboard ─── */
 export default function PatientDashboard() {
   const { user } = useAuth()
   const [section, setSection] = useState('overview')
   const [appointments, setAppointments] = useState(initialAppointments)
   const [history, setHistory] = useState(initialHistory)
+  const [prescriptions, setPrescriptions] = useState(initialPrescriptions)
+  const [vitals, setVitals] = useState(initialVitals)
+  const [showBookModal, setShowBookModal] = useState(false)
+  const [showVitalsModal, setShowVitalsModal] = useState(false)
+  const [vitalsForm, setVitalsForm] = useState({
+    bp: vitals.bloodPressure,
+    hr: vitals.heartRate,
+    glucose: vitals.bloodGlucose,
+    weight: vitals.weight,
+  })
 
   if (!user) return null
+
+  const handleSaveVitals = (e: React.FormEvent) => {
+    e.preventDefault()
+    setVitals({
+      ...vitals,
+      bloodPressure: vitalsForm.bp,
+      heartRate: vitalsForm.hr,
+      bloodGlucose: vitalsForm.glucose,
+      weight: vitalsForm.weight,
+      lastUpdated: 'Just now',
+    })
+    // Also log to history
+    setHistory((prev) => [
+      {
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        type: 'Vitals Log',
+        doctor: 'Self Logged (DrumGate Portal)',
+        note: `Updated health baseline: BP ${vitalsForm.bp} mmHg, HR ${vitalsForm.hr} bpm, Glucose ${vitalsForm.glucose} mg/dL, Weight ${vitalsForm.weight} kg.`,
+      },
+      ...prev,
+    ])
+    setShowVitalsModal(false)
+  }
 
   return (
     <DashboardLayout
@@ -589,11 +1122,126 @@ export default function PatientDashboard() {
       activeSection={section}
       onNavigate={setSection}
       roleLabel="Patient Portal"
+      coverImage="/images/patient-portal.jpg"
+      coverQuote={{
+        kanji: '癒',
+        title: 'PATIENT SANCTUARY',
+        subtitle: 'Where mindful care meets peace of mind.',
+        badge: 'Patient Portal',
+      }}
     >
-      {section === 'overview' && <OverviewSection userName={user.full_name} appointments={appointments} history={history} onNavigate={setSection} />}
-      {section === 'appointments' && <AppointmentsSection appointments={appointments} setAppointments={setAppointments} />}
-      {section === 'history' && <HistorySection history={history} setHistory={setHistory} />}
-      {section === 'profile' && <ProfileSection user={user} />}
+      {section === 'overview' && (
+        <OverviewSection
+          userName={user.full_name}
+          appointments={appointments}
+          history={history}
+          vitals={vitals}
+          onNavigate={setSection}
+          onOpenLogVitals={() => setShowVitalsModal(true)}
+          onOpenBookAppointment={() => {
+            setSection('appointments')
+            setShowBookModal(true)
+          }}
+        />
+      )}
+      {section === 'appointments' && (
+        <AppointmentsSection
+          appointments={appointments}
+          setAppointments={setAppointments}
+          showForm={showBookModal}
+          setShowForm={setShowBookModal}
+        />
+      )}
+      {section === 'history' && (
+        <HistorySection history={history} setHistory={setHistory} />
+      )}
+      {section === 'prescriptions' && (
+        <PrescriptionsSection
+          prescriptions={prescriptions}
+          setPrescriptions={setPrescriptions}
+        />
+      )}
+      {section === 'profile' && (
+        <ProfileSection user={user} vitals={vitals} />
+      )}
+
+      {/* Log Vitals Modal */}
+      {showVitalsModal && (
+        <div className="fixed inset-0 z-50 bg-kuro/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md p-6 rounded-2xl bg-sumi border border-charcoal shadow-2xl animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-charcoal/40 pb-3 mb-4">
+              <h3 className="font-serif text-lg text-washi flex items-center gap-2">
+                <Activity size={18} className="text-aka" /> Log Health Vitals
+              </h3>
+              <button onClick={() => setShowVitalsModal(false)} className="text-stone hover:text-washi">
+                <X size={16} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveVitals} className="space-y-4">
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Blood Pressure (mmHg)</label>
+                <input
+                  type="text"
+                  value={vitalsForm.bp}
+                  onChange={(e) => setVitalsForm({ ...vitalsForm, bp: e.target.value })}
+                  placeholder="e.g. 120/80"
+                  required
+                  className="w-full px-3.5 py-2 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+                />
+              </div>
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Heart Rate (bpm)</label>
+                <input
+                  type="number"
+                  value={vitalsForm.hr}
+                  onChange={(e) => setVitalsForm({ ...vitalsForm, hr: e.target.value })}
+                  placeholder="e.g. 72"
+                  required
+                  className="w-full px-3.5 py-2 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+                />
+              </div>
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Blood Glucose (mg/dL)</label>
+                <input
+                  type="number"
+                  value={vitalsForm.glucose}
+                  onChange={(e) => setVitalsForm({ ...vitalsForm, glucose: e.target.value })}
+                  placeholder="e.g. 95"
+                  required
+                  className="w-full px-3.5 py-2 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+                />
+              </div>
+              <div>
+                <label className="text-[0.65rem] text-stone tracking-wider uppercase block mb-1">Weight (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={vitalsForm.weight}
+                  onChange={(e) => setVitalsForm({ ...vitalsForm, weight: e.target.value })}
+                  placeholder="e.g. 64.5"
+                  required
+                  className="w-full px-3.5 py-2 bg-kuro border border-charcoal/50 rounded-lg text-sm text-washi"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-lg bg-aka/90 hover:bg-aka text-kuro font-medium text-xs transition-colors"
+                >
+                  Save & Update Log
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowVitalsModal(false)}
+                  className="px-4 py-2.5 rounded-lg border border-charcoal/40 text-stone hover:text-washi text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }
