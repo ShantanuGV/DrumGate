@@ -31,7 +31,7 @@ export default function SignIn() {
   return (
     <div className="min-h-screen flex">
       {/* Left — Image side */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden min-h-screen">
         <img
           src="/images/moonlit-temple.jpg"
           alt="Moonlit temple"

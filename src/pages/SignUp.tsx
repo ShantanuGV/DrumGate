@@ -71,7 +71,7 @@ export default function SignUp() {
   return (
     <div className="min-h-screen flex">
       {/* Left — Image side */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden min-h-screen">
         <img
           src="/images/hero-bg.jpg"
           alt="Torii gate in misty mountains"
